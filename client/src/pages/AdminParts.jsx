@@ -3,7 +3,7 @@ import { api } from "../api";
 
 const emptyForm = {
   internal_code: "", name: "", category_id: "", oem_number: "", brand_code: "", brand: "",
-  status: "polovno", repair_notes: "", description: "", price: "",
+  status: "polovno", repair_notes: "", description: "", price: "", currency: "RSD",
   quantity: 1, availability_status: "aktivno", vehicle_ids: [],
 };
 
@@ -47,6 +47,7 @@ export default function AdminParts() {
       repair_notes: part.repair_notes || "",
       description: part.description || "",
       price: part.price ?? "",
+      currency: part.currency || "RSD",
       quantity: part.quantity ?? 1,
       availability_status: part.availability_status,
       vehicle_ids: part.vehicles?.map((v) => v.id) || [],
@@ -180,11 +181,18 @@ export default function AdminParts() {
               className="w-full border border-line rounded px-3 py-2" rows={3} />
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-ink/60 mb-1">Cena (RSD)</label>
-              <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })}
-                className="w-full border border-line rounded px-3 py-2" />
+          <div className="grid grid-cols-4 gap-3">
+            <div className="col-span-2">
+              <label className="block text-xs font-medium text-ink/60 mb-1">Cena</label>
+              <div className="flex gap-2">
+                <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })}
+                  className="w-full border border-line rounded px-3 py-2" />
+                <select value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })}
+                  className="border border-line rounded px-2 py-2">
+                  <option value="RSD">RSD</option>
+                  <option value="EUR">EUR</option>
+                </select>
+              </div>
             </div>
             <div>
               <label className="block text-xs font-medium text-ink/60 mb-1">Količina</label>
