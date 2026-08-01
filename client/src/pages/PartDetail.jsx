@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { api } from "../api";
+import { useSettings } from "../context/SettingsContext";
 
 const statusLabels = {
   novo: "Novo",
@@ -12,6 +13,8 @@ export default function PartDetail() {
   const { id } = useParams();
   const [part, setPart] = useState(null);
   const [error, setError] = useState(null);
+  const { settings } = useSettings();
+  const phone = settings.contact_phone;
 
   useEffect(() => {
     api.get(`/parts/${id}`).then(setPart).catch((e) => setError(e.message));
@@ -66,12 +69,21 @@ export default function PartDetail() {
             </div>
           )}
 
-          <a
-            href="tel:+381600000000"
-            className="mt-8 inline-flex items-center justify-center gap-2 bg-rust hover:bg-rust/90 transition-colors text-white font-medium px-6 py-3 rounded w-full md:w-auto"
-          >
-            Pozovite za poručivanje
-          </a>
+          {phone ? (
+            <a
+              href={`tel:${phone.replace(/\s+/g, "")}`}
+              className="mt-8 inline-flex items-center justify-center gap-2 bg-rust hover:bg-rust/90 transition-colors text-white font-medium px-6 py-3 rounded w-full md:w-auto"
+            >
+              Pozovite za poručivanje
+            </a>
+          ) : (
+            <Link
+              to="/kontakt"
+              className="mt-8 inline-flex items-center justify-center gap-2 bg-rust hover:bg-rust/90 transition-colors text-white font-medium px-6 py-3 rounded w-full md:w-auto"
+            >
+              Kontaktirajte nas za poručivanje
+            </Link>
+          )}
         </div>
       </div>
     </div>
