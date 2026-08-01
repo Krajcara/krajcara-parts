@@ -43,7 +43,7 @@ export default function PartCard({ part }) {
         )}
         <p className="text-xs text-ink/50">Šifra: {part.internal_code}</p>
         {part.price != null && (
-          <p className="mt-auto font-semibold text-steel">{part.price} RSD</p>
+          <p className="mt-auto font-semibold text-steel">{part.price} {part.currency || "RSD"}</p>
         )}
       </div>
     </Link>
