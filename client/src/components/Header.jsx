@@ -9,12 +9,12 @@ export default function Header() {
             KRAJCARA
           </span>
         </Link>
-        <a
-          href="tel:+381600000000"
+        <Link
+          to="/kontakt"
           className="hidden md:inline-flex items-center gap-2 bg-rust hover:bg-rust/90 transition-colors text-white font-medium px-5 py-2.5 rounded"
         >
           Pozovite nas
-        </a>
+        </Link>
       </div>
     </header>
   );
