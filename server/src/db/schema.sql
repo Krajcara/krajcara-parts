@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS parts (
   repair_notes TEXT,                        -- popunjava se samo ako je status = reparirano
   description TEXT,
   price REAL,
+  currency TEXT NOT NULL DEFAULT 'RSD' CHECK (currency IN ('RSD', 'EUR')),
   image_path TEXT,                          -- putanja do (smanjene) slike na disku
   quantity INTEGER DEFAULT 1,
   availability_status TEXT NOT NULL DEFAULT 'aktivno'
