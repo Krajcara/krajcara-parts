@@ -141,7 +141,6 @@ export default function AdminParts() {
               <label className="block text-xs font-medium text-ink/60 mb-1">Status *</label>
               <select required value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}
                 className="w-full border border-line rounded px-3 py-2">
-                <option value="novo">Novo</option>
                 <option value="polovno">Polovno</option>
                 <option value="reparirano">Reparirano</option>
               </select>
