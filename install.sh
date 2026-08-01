@@ -1,12 +1,11 @@
 #!/bin/bash
 # Krajcara.com - instalaciona skripta
-# Pokreni: bash install.sh   (BEZ sudo ispred - skripta sama poziva sudo gde treba)
+# Pokreni IZ VEĆ KLONIRANOG repozitorijuma: bash install.sh   (BEZ sudo ispred)
 
 set -e
 
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$HOME/.krajcara"
-REPO_URL_FILE="$CONFIG_DIR/repo_url"
 
 echo "=== Krajcara.com - instalacija ==="
 mkdir -p "$CONFIG_DIR"
@@ -28,70 +27,82 @@ else
   echo "-> PM2 je već instaliran."
 fi
 
-# ---------- 3. Repo URL (repo je javan, token nije potreban) ----------
-if [ -f "$REPO_URL_FILE" ]; then
-  REPO_URL=$(cat "$REPO_URL_FILE")
-else
+# ---------- 3. Provera da smo unutar već kloniranog repozitorijuma ----------
+if [ ! -d "$APP_DIR/.git" ]; then
   echo ""
-  echo "Repo je javan, ne treba token. Unesi samo URL repozitorijuma."
-  echo "Primer: https://github.com/krajcara/krajcara-parts.git"
-  read -rp "Repo URL: " REPO_URL
-  echo "$REPO_URL" > "$REPO_URL_FILE"
+  echo "!! Ovaj folder nije git repozitorijum."
+  echo "!! Prvo kloniraj repo, pa iz njega pokreni instalaciju:"
+  echo "     git clone https://github.com/krajcara/krajcara-parts.git"
+  echo "     cd krajcara-parts"
+  echo "     bash install.sh"
+  exit 1
 fi
 
-# ---------- 4. Kloniranje repozitorijuma (ako još nije kloniran) ----------
-if [ ! -d "$APP_DIR/.git" ]; then
-  echo "-> Kloniram repozitorijum..."
-  TMP_CLONE=$(mktemp -d)
-  git clone "$REPO_URL" "$TMP_CLONE"
-  cp -rn "$TMP_CLONE"/. "$APP_DIR"/
-  rm -rf "$TMP_CLONE"
-else
-  echo "-> Repozitorijum je već kloniran u $APP_DIR."
-  (cd "$APP_DIR" && git remote set-url origin "$REPO_URL" 2>/dev/null || git remote add origin "$REPO_URL")
-fi
+echo "-> Repo: $(cd "$APP_DIR" && git remote get-url origin 2>/dev/null || echo 'nepoznat remote')"
 
 cd "$APP_DIR"
 
-# ---------- 5. Backend ----------
+# ---------- 4. Backend ----------
 echo "-> Instaliram backend zavisnosti..."
 cd "$APP_DIR/server"
 npm install --omit=dev
 
+GENERATED_PASSWORD=""
+
 if [ ! -f ".env" ]; then
   if [ -f ".env.example" ]; then
     cp .env.example .env
-    echo ""
-    echo "!! Kreiran je server/.env iz .env.example."
   else
-    echo ""
-    echo "!! .env.example nije pronađen u repo-u. Kreiram podrazumevani server/.env direktno."
     cat > .env << 'ENV_EOF'
 PORT=4000
-JWT_SECRET=promeni-ovo-u-nesto-slucajno-i-tajno
+JWT_SECRET=placeholder
 NODE_ENV=production
 ADMIN_USERNAME=admin
-ADMIN_PASSWORD=promeni-ovu-lozinku
+ADMIN_PASSWORD=placeholder
 IMAGE_MAX_DIMENSION=1200
 IMAGE_QUALITY=80
 ENV_EOF
   fi
-  echo "!! OBAVEZNO izmeni JWT_SECRET, ADMIN_USERNAME i ADMIN_PASSWORD u server/.env pre produkcije."
-  echo ""
-  read -rp "Pritisni ENTER kad završiš izmenu server/.env (ili sad da nastavim sa podrazumevanim)..." _
+
+  echo "-> Generišem bezbedne vrednosti za JWT_SECRET i ADMIN_PASSWORD..."
+
+  if command -v openssl &> /dev/null; then
+    JWT_SECRET_VALUE=$(openssl rand -hex 32)
+    GENERATED_PASSWORD=$(openssl rand -base64 15 | tr -d '=+/')
+  else
+    JWT_SECRET_VALUE=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+    GENERATED_PASSWORD=$(node -e "console.log(require('crypto').randomBytes(12).toString('base64').replace(/[=+/]/g,''))")
+  fi
+
+  # Upiši generisane vrednosti u .env (bez upita korisniku)
+  sed -i "s|^JWT_SECRET=.*|JWT_SECRET=${JWT_SECRET_VALUE}|" .env
+  sed -i "s|^ADMIN_PASSWORD=.*|ADMIN_PASSWORD=${GENERATED_PASSWORD}|" .env
+
+  # Sačuvaj kredencijale i lokalno, van git repo-a, za slučaj da ih propustiš u terminalu
+  ADMIN_USER_VALUE=$(grep '^ADMIN_USERNAME=' .env | cut -d'=' -f2)
+  cat > "$CONFIG_DIR/admin_credentials.txt" << CRED_EOF
+Admin panel: https://krajcara.com/admin/login
+Korisničko ime: ${ADMIN_USER_VALUE}
+Lozinka: ${GENERATED_PASSWORD}
+CRED_EOF
+  chmod 600 "$CONFIG_DIR/admin_credentials.txt"
+
+  echo "-> server/.env je kreiran sa automatski generisanim JWT_SECRET i ADMIN_PASSWORD."
+else
+  echo "-> server/.env već postoji, preskačem generisanje."
 fi
 
 echo "-> Inicijalizujem bazu podataka..."
 npm run init-db
 npm run seed-admin
 
-# ---------- 6. Frontend ----------
+# ---------- 5. Frontend ----------
 echo "-> Instaliram frontend zavisnosti i pravim produkcioni build..."
 cd "$APP_DIR/client"
 npm install
 npm run build
 
-# ---------- 7. Pokretanje kroz PM2 ----------
+# ---------- 6. Pokretanje kroz PM2 ----------
 cd "$APP_DIR/server"
 if pm2 describe krajcara-server &> /dev/null; then
   echo "-> Aplikacija je već pokrenuta u PM2, radim restart..."
@@ -109,4 +120,12 @@ echo ""
 echo "=== Instalacija završena ==="
 echo "Aplikacija radi na portu iz server/.env (podrazumevano 4000)."
 echo "Podesi Nginx Proxy Manager da usmerava krajcara.com -> ovaj server:PORT."
+echo ""
+if [ -n "$GENERATED_PASSWORD" ]; then
+  echo "!! ADMIN PRISTUP (sačuvaj ovo - prikazuje se samo sada):"
+  echo "   Korisničko ime: $(grep '^ADMIN_USERNAME=' server/.env | cut -d'=' -f2)"
+  echo "   Lozinka:        ${GENERATED_PASSWORD}"
+  echo "   (takođe sačuvano u ${CONFIG_DIR}/admin_credentials.txt)"
+  echo ""
+fi
 echo "Admin panel: https://krajcara.com/admin/login"
