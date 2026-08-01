@@ -1,0 +1,188 @@
+const express = require("express");
+const multer = require("multer");
+const os = require("os");
+const db = require("../db/connection");
+const requireAuth = require("../middleware/auth");
+const { processAndSaveImage } = require("../utils/imageProcessor");
+
+const router = express.Router();
+const upload = multer({ dest: os.tmpdir() });
+
+function generateInternalCode() {
+  const last = db
+    .prepare("SELECT internal_code FROM parts ORDER BY id DESC LIMIT 1")
+    .get();
+  let nextNum = 1;
+  if (last && last.internal_code) {
+    const match = last.internal_code.match(/(\d+)$/);
+    if (match) nextNum = parseInt(match[1], 10) + 1;
+  }
+  return `KRJ-${String(nextNum).padStart(6, "0")}`;
+}
+
+function attachVehicles(part) {
+  const vehicles = db
+    .prepare(
+      `SELECT v.* FROM vehicles v
+       JOIN part_vehicle_compatibility pvc ON pvc.vehicle_id = v.id
+       WHERE pvc.part_id = ?`
+    )
+    .all(part.id);
+  return { ...part, vehicles, extra_attributes: JSON.parse(part.extra_attributes || "{}") };
+}
+
+// -------- Javna pretraga --------
+// Podržava: q (OEM ili interni broj ili naziv), category_id, status, vehicle_id
+router.get("/", (req, res) => {
+  const { q, category_id, status, vehicle_id } = req.query;
+
+  let query = `SELECT DISTINCT p.* FROM parts p`;
+  const params = [];
+  const conditions = ["p.availability_status = 'aktivno'"];
+
+  if (vehicle_id) {
+    query += ` JOIN part_vehicle_compatibility pvc ON pvc.part_id = p.id`;
+    conditions.push("pvc.vehicle_id = ?");
+    params.push(vehicle_id);
+  }
+
+  if (q) {
+    conditions.push("(p.oem_number LIKE ? OR p.internal_code LIKE ? OR p.name LIKE ?)");
+    params.push(`%${q}%`, `%${q}%`, `%${q}%`);
+  }
+  if (category_id) {
+    conditions.push("p.category_id = ?");
+    params.push(category_id);
+  }
+  if (status) {
+    conditions.push("p.status = ?");
+    params.push(status);
+  }
+
+  query += " WHERE " + conditions.join(" AND ") + " ORDER BY p.created_at DESC";
+
+  const parts = db.prepare(query).all(...params);
+  res.json(parts.map(attachVehicles));
+});
+
+// Admin - pregled svih delova (uključujući neaktivne), bez filtera na availability
+router.get("/admin", requireAuth, (req, res) => {
+  const parts = db.prepare("SELECT * FROM parts ORDER BY created_at DESC").all();
+  res.json(parts.map(attachVehicles));
+});
+
+// Javno - detalji jednog dela
+router.get("/:id", (req, res) => {
+  const part = db.prepare("SELECT * FROM parts WHERE id = ?").get(req.params.id);
+  if (!part) return res.status(404).json({ error: "Deo nije pronađen." });
+  res.json(attachVehicles(part));
+});
+
+// Admin - kreiranje novog dela (sa opcionom slikom)
+router.post("/", requireAuth, upload.single("image"), async (req, res) => {
+  try {
+    const {
+      name, category_id, oem_number, brand_code, brand,
+      status, repair_notes, description, price,
+      quantity, availability_status, extra_attributes, vehicle_ids,
+    } = req.body;
+
+    if (!name || !status) {
+      return res.status(400).json({ error: "Naziv i status su obavezni." });
+    }
+
+    let imagePath = null;
+    if (req.file) {
+      imagePath = await processAndSaveImage(req.file.path);
+    }
+
+    const internalCode = generateInternalCode();
+
+    const result = db
+      .prepare(
+        `INSERT INTO parts
+         (internal_code, name, category_id, oem_number, brand_code, brand, status,
+          repair_notes, description, price, image_path, quantity, availability_status, extra_attributes)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      )
+      .run(
+        internalCode, name, category_id || null, oem_number || null,
+        brand_code || null, brand || null, status,
+        repair_notes || null, description || null, price || null,
+        imagePath, quantity || 1, availability_status || "aktivno",
+        extra_attributes || "{}"
+      );
+
+    const partId = result.lastInsertRowid;
+
+    // Kompatibilna vozila (vehicle_ids je JSON string niza id-jeva)
+    if (vehicle_ids) {
+      const ids = JSON.parse(vehicle_ids);
+      const insertCompat = db.prepare(
+        "INSERT OR IGNORE INTO part_vehicle_compatibility (part_id, vehicle_id) VALUES (?, ?)"
+      );
+      for (const vId of ids) insertCompat.run(partId, vId);
+    }
+
+    const created = db.prepare("SELECT * FROM parts WHERE id = ?").get(partId);
+    res.status(201).json(attachVehicles(created));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Greška prilikom kreiranja dela." });
+  }
+});
+
+// Admin - izmena dela (sa opcionom novom slikom)
+router.put("/:id", requireAuth, upload.single("image"), async (req, res) => {
+  try {
+    const existing = db.prepare("SELECT * FROM parts WHERE id = ?").get(req.params.id);
+    if (!existing) return res.status(404).json({ error: "Deo nije pronađen." });
+
+    const {
+      name, category_id, oem_number, brand_code, brand,
+      status, repair_notes, description, price,
+      quantity, availability_status, extra_attributes, vehicle_ids,
+    } = req.body;
+
+    let imagePath = existing.image_path;
+    if (req.file) {
+      imagePath = await processAndSaveImage(req.file.path);
+    }
+
+    db.prepare(
+      `UPDATE parts SET
+        name=?, category_id=?, oem_number=?, brand_code=?, brand=?, status=?,
+        repair_notes=?, description=?, price=?, image_path=?, quantity=?,
+        availability_status=?, extra_attributes=?, updated_at=datetime('now')
+       WHERE id=?`
+    ).run(
+      name, category_id || null, oem_number || null, brand_code || null,
+      brand || null, status, repair_notes || null, description || null,
+      price || null, imagePath, quantity || 1, availability_status || "aktivno",
+      extra_attributes || "{}", req.params.id
+    );
+
+    if (vehicle_ids) {
+      db.prepare("DELETE FROM part_vehicle_compatibility WHERE part_id = ?").run(req.params.id);
+      const ids = JSON.parse(vehicle_ids);
+      const insertCompat = db.prepare(
+        "INSERT OR IGNORE INTO part_vehicle_compatibility (part_id, vehicle_id) VALUES (?, ?)"
+      );
+      for (const vId of ids) insertCompat.run(req.params.id, vId);
+    }
+
+    const updated = db.prepare("SELECT * FROM parts WHERE id = ?").get(req.params.id);
+    res.json(attachVehicles(updated));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Greška prilikom izmene dela." });
+  }
+});
+
+// Admin - brisanje dela
+router.delete("/:id", requireAuth, (req, res) => {
+  db.prepare("DELETE FROM parts WHERE id = ?").run(req.params.id);
+  res.json({ ok: true });
+});
+
+module.exports = router;
