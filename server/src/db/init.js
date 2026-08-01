@@ -6,26 +6,30 @@ function initDb() {
   const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
   db.exec(schema);
 
-  // Podrazumevane kategorije - lako se dodaju/menjaju kasnije kroz admin panel
-  const defaultCategories = [
-    "Motor",
-    "Menjač",
-    "Elektrika",
-    "Karoserija",
-    "Enterijer",
-    "Kočioni sistem",
-    "Ovesni sistem / Amortizeri",
-    "Izduvni sistem",
-    "Klima uređaj",
-  ];
+  // Podrazumevane kategorije - ubacuju se SAMO pri prvoj instalaciji (kad je tabela prazna).
+  // Nakon toga, admin panel je jedini izvor istine - obrisane kategorije se ne vraćaju
+  // nazad prilikom update-a, niti se buduće izmene ovde automatski dodaju.
+  const categoryCount = db.prepare("SELECT COUNT(*) AS count FROM categories").get().count;
 
-  const insertCategory = db.prepare(
-    "INSERT OR IGNORE INTO categories (name) VALUES (?)"
-  );
-  const insertMany = db.transaction((rows) => {
-    for (const name of rows) insertCategory.run(name);
-  });
-  insertMany(defaultCategories);
+  if (categoryCount === 0) {
+    const defaultCategories = [
+      "Motor",
+      "Menjač",
+      "Elektrika",
+      "Karoserija",
+      "Enterijer",
+      "Kočioni sistem",
+      "Ovesni sistem / Amortizeri",
+      "Izduvni sistem",
+      "Klima uređaj",
+    ];
+
+    const insertCategory = db.prepare("INSERT INTO categories (name) VALUES (?)");
+    const insertMany = db.transaction((rows) => {
+      for (const name of rows) insertCategory.run(name);
+    });
+    insertMany(defaultCategories);
+  }
 
   // Podrazumevana podešavanja
   const insertSetting = db.prepare(
