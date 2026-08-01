@@ -45,7 +45,7 @@ function AppShell() {
 
       {!isAdminRoute && (
         <footer className="bg-graphite text-white/60 text-sm text-center py-6 mt-10">
-          © {new Date().getFullYear()} Krajcara — Novi Sad
+          © {new Date().getFullYear()} Krajcara — Kikinda
         </footer>
       )}
     </div>
