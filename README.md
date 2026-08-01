@@ -6,7 +6,7 @@ Web aplikacija za prodaju polovnih, reparovanih i novih auto delova. Bez online 
 
 ```
 krajcara-parts/
-├── install.sh          # Instalacija na svež server (traži GitHub token jednom)
+├── install.sh          # Instalacija na svež server
 ├── update.sh           # Povlačenje izmena i restart aplikacije
 ├── server/             # Backend (Express + SQLite)
 │   ├── src/
@@ -25,15 +25,19 @@ krajcara-parts/
 
 Preduslov: Ubuntu server sa `git`, `curl`, `sudo` pravima, i već podešen Nginx Proxy Manager + Cloudflare DNS/DDNS za `krajcara.com`.
 
+Repozitorijum je **javan**, pa nije potreban nikakav token za kloniranje ili ažuriranje.
+
 ```bash
-git clone https://github.com/<korisnik>/<repo>.git krajcara-parts
+git clone https://github.com/krajcara/krajcara-parts.git
 cd krajcara-parts
 bash install.sh
 ```
 
+> Važno: pokreni `bash install.sh` **bez** `sudo` ispred. Skripta sama interno poziva `sudo` samo tamo gde je stvarno potrebno (instalacija Node.js-a i PM2-a). Ako pokreneš ceo `install.sh` sa `sudo`, folder projekta (uključujući `.git`) ostaje u vlasništvu `root` korisnika, što kasnije pravi probleme sa `git pull` i dozvolama.
+
 Skripta će:
 1. Instalirati Node.js (ako nedostaje) i PM2
-2. **Pitati za GitHub token samo prvi put** — sačuvaće ga u `~/.krajcara/github_token` (fajl je čitljiv samo tvom korisniku, `chmod 600`) i koristiti ga automatski ubuduće za `update.sh`
+2. Pitati za URL repozitorijuma samo prvi put (npr. `https://github.com/krajcara/krajcara-parts.git`) i zapamtiti ga u `~/.krajcara/repo_url`
 3. Instalirati sve zavisnosti (backend + frontend)
 4. Kreirati `server/.env` iz `.env.example` — **obavezno izmeni `JWT_SECRET`, `ADMIN_USERNAME` i `ADMIN_PASSWORD`** pre nego što nastaviš
 5. Inicijalizovati SQLite bazu i kreirati admin nalog
@@ -47,9 +51,7 @@ cd krajcara-parts
 bash update.sh
 ```
 
-Koristi već sačuvan GitHub token — ne traži ga ponovo. Povlači izmene, ažurira zavisnosti, pravi novi frontend build i restartuje PM2 proces.
-
-> Napomena: `update.sh` koristi `git reset --hard origin/main`. Ako repo koristi granu `master`, izmeni tu liniju u skripti.
+Povlači izmene (`git pull`, bez potrebe za tokenom pošto je repo javan), ažurira zavisnosti, pravi novi frontend build i restartuje PM2 proces.
 
 ## Podešavanje Nginx Proxy Manager-a
 
@@ -94,3 +96,7 @@ Primer cron zadatka (svaki dan u 3h ujutru):
 ## Fleksibilnost polja dela
 
 Osnovna polja (naziv, OEM broj, status, cena...) su fiksne kolone u bazi. Dodatna polja specifična za kategoriju (npr. napon/amperaža za elektriku) idu u `extra_attributes` (JSON) — nova polja se mogu dodavati bez izmene šeme baze.
+
+## Bezbednosna napomena — javni repo
+
+Pošto je repozitorijum javan, **nikad ne komituj** `server/.env` (već je u `.gitignore`) — sadrži `JWT_SECRET` i admin lozinku. Takođe ne komituj `server/data/` (baza) ni `server/uploads/` (slike delova) — svi su već pokriveni `.gitignore`-om, ali vredi povremeno proveriti `git status` pre `git push`-a da se ništa slučajno ne doda.
