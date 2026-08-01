@@ -7,10 +7,11 @@ set -e
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$HOME/.krajcara"
 TOKEN_FILE="$CONFIG_DIR/github_token"
-REPO_URL_FILE="$CONFIG_DIR/repo_url"
+REPO_URL_FILE="$CONFIG_DIR/repo_slug"   # čuvamo SAMO "korisnik/repo", nikad token unutar URL-a
 
 echo "=== Krajcara.com - instalacija ==="
 mkdir -p "$CONFIG_DIR"
+chmod 700 "$CONFIG_DIR"
 
 # ---------- 1. Node.js ----------
 if ! command -v node &> /dev/null; then
@@ -29,9 +30,9 @@ else
   echo "-> PM2 je već instaliran."
 fi
 
-# ---------- 3. GitHub token (pita samo prvi put) ----------
+# ---------- 3. GitHub token + repo slug (pita samo prvi put) ----------
 if [ -f "$TOKEN_FILE" ]; then
-  echo "-> GitHub token je već sačuvan (${TOKEN_FILE}), preskačem unos."
+  echo "-> GitHub token je već sačuvan, preskačem unos."
   GITHUB_TOKEN=$(cat "$TOKEN_FILE")
 else
   echo ""
@@ -40,34 +41,43 @@ else
   echo ""
   echo "$GITHUB_TOKEN" > "$TOKEN_FILE"
   chmod 600 "$TOKEN_FILE"
-  echo "-> Token je sačuvan, koristiće se automatski i za buduće update-e (update.sh)."
+  echo "-> Token je sačuvan (samo lokalno, u ~/.krajcara/github_token), koristiće se automatski ubuduće."
 fi
 
 if [ -f "$REPO_URL_FILE" ]; then
-  REPO_URL=$(cat "$REPO_URL_FILE")
+  REPO_SLUG=$(cat "$REPO_URL_FILE")
 else
-  read -rp "Unesi GitHub repo (format: korisnik/naziv-repozitorijuma): " REPO_SLUG
-  REPO_URL="https://github.com/${REPO_SLUG}.git"
-  echo "$REPO_URL" > "$REPO_URL_FILE"
+  echo ""
+  echo "Unesi SAMO 'korisnik/naziv-repozitorijuma', bez https:// i bez tokena."
+  echo "Primer: krajcara/krajcara-parts"
+  read -rp "Repo: " REPO_SLUG
+  # Odbrana od slučajnog nalepljivanja pune URL adrese sa tokenom
+  if [[ "$REPO_SLUG" == *"http"* ]] || [[ "$REPO_SLUG" == *"@"* ]]; then
+    echo "!! Uneo si punu URL adresu umesto 'korisnik/repo'. Pokušaj ponovo, samo npr: krajcara/krajcara-parts"
+    read -rp "Repo: " REPO_SLUG
+  fi
+  echo "$REPO_SLUG" > "$REPO_URL_FILE"
 fi
 
-AUTH_URL=$(echo "$REPO_URL" | sed "s#https://#https://${GITHUB_TOKEN}@#")
+REPO_URL="https://github.com/${REPO_SLUG}.git"
+AUTH_URL="https://${GITHUB_TOKEN}@github.com/${REPO_SLUG}.git"
 
 # ---------- 4. Kloniranje repozitorijuma (ako još nije kloniran) ----------
 if [ ! -d "$APP_DIR/.git" ]; then
   echo "-> Kloniram repozitorijum..."
   TMP_CLONE=$(mktemp -d)
   git clone "$AUTH_URL" "$TMP_CLONE"
+  # Ukloni token iz remote URL-a odmah nakon klona - ne čuvamo ga u .git/config
+  (cd "$TMP_CLONE" && git remote set-url origin "$REPO_URL")
   cp -rn "$TMP_CLONE"/. "$APP_DIR"/
   rm -rf "$TMP_CLONE"
 else
   echo "-> Repozitorijum je već kloniran u $APP_DIR."
+  # Osiguraj da remote NE sadrži token (bezbednost, i za slučaj ranije verzije skripte)
+  (cd "$APP_DIR" && git remote set-url origin "$REPO_URL" 2>/dev/null || git remote add origin "$REPO_URL")
 fi
 
 cd "$APP_DIR"
-
-# Sačuvaj remote sa tokenom da update.sh može da radi bez ponovnog unosa
-git remote set-url origin "$AUTH_URL" 2>/dev/null || git remote add origin "$AUTH_URL"
 
 # ---------- 5. Backend ----------
 echo "-> Instaliram backend zavisnosti..."
@@ -75,10 +85,25 @@ cd "$APP_DIR/server"
 npm install --omit=dev
 
 if [ ! -f ".env" ]; then
-  cp .env.example .env
-  echo ""
-  echo "!! Kreiran je server/.env sa podrazumevanim vrednostima."
-  echo "!! OBAVEZNO izmeni JWT_SECRET, ADMIN_USERNAME i ADMIN_PASSWORD pre pokretanja u produkciji."
+  if [ -f ".env.example" ]; then
+    cp .env.example .env
+    echo ""
+    echo "!! Kreiran je server/.env iz .env.example."
+  else
+    echo ""
+    echo "!! .env.example nije pronađen u repo-u (verovatno je izgubljen pri upload-u na GitHub)."
+    echo "!! Kreiram podrazumevani server/.env direktno."
+    cat > .env << 'ENV_EOF'
+PORT=4000
+JWT_SECRET=promeni-ovo-u-nesto-slucajno-i-tajno
+NODE_ENV=production
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=promeni-ovu-lozinku
+IMAGE_MAX_DIMENSION=1200
+IMAGE_QUALITY=80
+ENV_EOF
+  fi
+  echo "!! OBAVEZNO izmeni JWT_SECRET, ADMIN_USERNAME i ADMIN_PASSWORD u server/.env pre produkcije."
   echo ""
   read -rp "Pritisni ENTER kad završiš izmenu server/.env (ili sad da nastavim sa podrazumevanim)..." _
 fi
