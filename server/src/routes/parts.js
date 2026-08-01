@@ -17,7 +17,7 @@ function generateInternalCode() {
     const match = last.internal_code.match(/(\d+)$/);
     if (match) nextNum = parseInt(match[1], 10) + 1;
   }
-  return `KRJ-${String(nextNum).padStart(6, "0")}`;
+  return `K${String(nextNum).padStart(4, "0")}`;
 }
 
 function attachVehicles(part) {
@@ -71,6 +71,11 @@ router.get("/admin", requireAuth, (req, res) => {
   res.json(parts.map(attachVehicles));
 });
 
+// Admin - predlog sledećeg internog broja (za prefill u formi, korisnik ga može promeniti)
+router.get("/next-code", requireAuth, (req, res) => {
+  res.json({ code: generateInternalCode() });
+});
+
 // Javno - detalji jednog dela
 router.get("/:id", (req, res) => {
   const part = db.prepare("SELECT * FROM parts WHERE id = ?").get(req.params.id);
@@ -82,7 +87,7 @@ router.get("/:id", (req, res) => {
 router.post("/", requireAuth, upload.single("image"), async (req, res) => {
   try {
     const {
-      name, category_id, oem_number, brand_code, brand,
+      internal_code, name, category_id, oem_number, brand_code, brand,
       status, repair_notes, description, price,
       quantity, availability_status, extra_attributes, vehicle_ids,
     } = req.body;
@@ -91,12 +96,22 @@ router.post("/", requireAuth, upload.single("image"), async (req, res) => {
       return res.status(400).json({ error: "Naziv i status su obavezni." });
     }
 
+    let finalCode = (internal_code || "").trim();
+    if (finalCode) {
+      const clash = db
+        .prepare("SELECT id FROM parts WHERE internal_code = ?")
+        .get(finalCode);
+      if (clash) {
+        return res.status(400).json({ error: `Broj dela "${finalCode}" je već zauzet.` });
+      }
+    } else {
+      finalCode = generateInternalCode();
+    }
+
     let imagePath = null;
     if (req.file) {
       imagePath = await processAndSaveImage(req.file.path);
     }
-
-    const internalCode = generateInternalCode();
 
     const result = db
       .prepare(
@@ -106,7 +121,7 @@ router.post("/", requireAuth, upload.single("image"), async (req, res) => {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .run(
-        internalCode, name, category_id || null, oem_number || null,
+        finalCode, name, category_id || null, oem_number || null,
         brand_code || null, brand || null, status,
         repair_notes || null, description || null, price || null,
         imagePath, quantity || 1, availability_status || "aktivno",
@@ -139,10 +154,22 @@ router.put("/:id", requireAuth, upload.single("image"), async (req, res) => {
     if (!existing) return res.status(404).json({ error: "Deo nije pronađen." });
 
     const {
-      name, category_id, oem_number, brand_code, brand,
+      internal_code, name, category_id, oem_number, brand_code, brand,
       status, repair_notes, description, price,
       quantity, availability_status, extra_attributes, vehicle_ids,
     } = req.body;
+
+    let finalCode = existing.internal_code;
+    const requestedCode = (internal_code || "").trim();
+    if (requestedCode && requestedCode !== existing.internal_code) {
+      const clash = db
+        .prepare("SELECT id FROM parts WHERE internal_code = ? AND id != ?")
+        .get(requestedCode, req.params.id);
+      if (clash) {
+        return res.status(400).json({ error: `Broj dela "${requestedCode}" je već zauzet.` });
+      }
+      finalCode = requestedCode;
+    }
 
     let imagePath = existing.image_path;
     if (req.file) {
@@ -151,12 +178,12 @@ router.put("/:id", requireAuth, upload.single("image"), async (req, res) => {
 
     db.prepare(
       `UPDATE parts SET
-        name=?, category_id=?, oem_number=?, brand_code=?, brand=?, status=?,
+        internal_code=?, name=?, category_id=?, oem_number=?, brand_code=?, brand=?, status=?,
         repair_notes=?, description=?, price=?, image_path=?, quantity=?,
         availability_status=?, extra_attributes=?, updated_at=datetime('now')
        WHERE id=?`
     ).run(
-      name, category_id || null, oem_number || null, brand_code || null,
+      finalCode, name, category_id || null, oem_number || null, brand_code || null,
       brand || null, status, repair_notes || null, description || null,
       price || null, imagePath, quantity || 1, availability_status || "aktivno",
       extra_attributes || "{}", req.params.id
