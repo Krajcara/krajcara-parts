@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { api, getToken } from "./api";
+import { getToken } from "./api";
+import { SettingsProvider, useSettings } from "./context/SettingsContext";
 import Header from "./components/Header";
 import UnderConstructionBanner from "./components/UnderConstructionBanner";
 import Home from "./pages/Home";
 import PartDetail from "./pages/PartDetail";
+import Contact from "./pages/Contact";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 
@@ -16,13 +17,8 @@ function RequireAuth({ children }) {
   return children;
 }
 
-export default function App() {
-  const [settings, setSettings] = useState({});
-
-  useEffect(() => {
-    api.get("/settings").then(setSettings).catch(() => {});
-  }, []);
-
+function AppShell() {
+  const { settings } = useSettings();
   const isAdminRoute = window.location.pathname.startsWith("/admin");
 
   return (
@@ -34,6 +30,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/delovi/:id" element={<PartDetail />} />
+          <Route path="/kontakt" element={<Contact />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route
             path="/admin"
@@ -52,5 +49,13 @@ export default function App() {
         </footer>
       )}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <SettingsProvider>
+      <AppShell />
+    </SettingsProvider>
   );
 }
