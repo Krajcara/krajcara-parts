@@ -6,6 +6,14 @@ function initDb() {
   const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
   db.exec(schema);
 
+  // Migracija za baze kreirane pre uvođenja valute - doda kolonu ako ne postoji
+  const partsColumns = db.prepare("PRAGMA table_info(parts)").all();
+  const hasCurrency = partsColumns.some((col) => col.name === "currency");
+  if (!hasCurrency) {
+    db.exec("ALTER TABLE parts ADD COLUMN currency TEXT NOT NULL DEFAULT 'RSD'");
+    console.log("Migracija: dodata kolona 'currency' u tabelu parts.");
+  }
+
   // Podrazumevane kategorije - ubacuju se SAMO pri prvoj instalaciji (kad je tabela prazna).
   // Nakon toga, admin panel je jedini izvor istine - obrisane kategorije se ne vraćaju
   // nazad prilikom update-a, niti se buduće izmene ovde automatski dodaju.
