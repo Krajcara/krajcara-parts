@@ -63,7 +63,7 @@ export default function Home() {
           Polovni auto delovi Kikinda
         </h1>
         <p className="text-ink/60 mt-1">
-          Autoelektričar sa dugogodišnjim iskustvom — polovni, reparirani i novi delovi za vaše vozilo.
+          Autoelektričar sa dugogodišnjim iskustvom — polovni i reparirani delovi za vaše vozilo.
         </p>
       </div>
 
@@ -149,7 +149,6 @@ export default function Home() {
               className="w-full border border-line rounded px-3 py-2"
             >
               <option value="">Svi statusi</option>
-              <option value="novo">Novo</option>
               <option value="polovno">Polovno</option>
               <option value="reparirano">Reparirano</option>
             </select>
