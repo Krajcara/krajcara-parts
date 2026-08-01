@@ -1,32 +1,18 @@
 #!/bin/bash
 # Krajcara.com - update skripta
 # Povlači najnovije izmene sa GitHub-a i restartuje aplikaciju.
-# Pokreni: bash update.sh
+# Pokreni: bash update.sh   (BEZ sudo ispred)
 
 set -e
 
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_DIR="$HOME/.krajcara"
-TOKEN_FILE="$CONFIG_DIR/github_token"
-REPO_URL_FILE="$CONFIG_DIR/repo_url"
 
 echo "=== Krajcara.com - update ==="
 
-if [ ! -f "$TOKEN_FILE" ] || [ ! -f "$REPO_URL_FILE" ]; then
-  echo "GitHub token/repo nije pronađen. Pokreni prvo install.sh."
-  exit 1
-fi
-
-GITHUB_TOKEN=$(cat "$TOKEN_FILE")
-REPO_URL=$(cat "$REPO_URL_FILE")
-AUTH_URL=$(echo "$REPO_URL" | sed "s#https://#https://${GITHUB_TOKEN}@#")
-
 cd "$APP_DIR"
-git remote set-url origin "$AUTH_URL"
 
-echo "-> Povlačim najnovije izmene..."
-git fetch origin
-git reset --hard origin/main   # promeni u 'master' ako repo koristi taj naziv grane
+echo "-> Povlačim najnovije izmene (repo je javan, token nije potreban)..."
+git pull
 
 echo "-> Ažuriram backend zavisnosti..."
 cd "$APP_DIR/server"
