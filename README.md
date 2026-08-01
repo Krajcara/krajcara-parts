@@ -17,7 +17,8 @@ krajcara-parts/
 │   └── .env.example
 └── client/              # Frontend (React + Vite + Tailwind)
     └── src/
-        ├── pages/       # Home, PartDetail, AdminLogin, AdminDashboard...
+        ├── context/     # SettingsContext (deljena podešavanja - banner, kontakt)
+        ├── pages/       # Home, PartDetail, Contact, AdminLogin, AdminDashboard...
         └── components/  # Header, PartCard, UnderConstructionBanner
 ```
 
@@ -67,6 +68,18 @@ Povlači izmene (`git pull`, bez potrebe za tokenom pošto je repo javan), ažur
 ## Traka "Sajt u izradi"
 
 Sajt prikazuje traku na vrhu dok je opcija uključena. Isključuje se u **Admin panelu → Podešavanja** kad sajt bude spreman za zvanično lansiranje — nije potrebna izmena koda.
+
+## Kontakt stranica
+
+Dugme "Pozovite nas" u zaglavlju vodi na `/kontakt`, gde se prikazuju telefon i e-mail. Oba se unose u **Admin panelu → Podešavanja → Kontakt podaci**. Dok god telefon nije unet, dugme za poručivanje na stranici dela vodi na kontakt stranicu umesto direktnog poziva.
+
+## Interni broj dela
+
+Svaki deo dobija predlog internog broja u formatu `K0001` (nastavlja se od najvišeg dosad korišćenog broja). Broj je **editabilan** — u formi za dodavanje/izmenu dela u Admin panelu možeš ga slobodno promeniti u šta god želiš. Sistem ne dozvoljava dva dela sa istim brojem.
+
+## Kategorije, vozila i podešavanja — ponašanje pri update-u
+
+Podrazumevane kategorije (Motor, Menjač, Elektrika...) ubacuju se **samo pri prvoj instalaciji**, kad je tabela kategorija prazna. Nakon toga, Admin panel je jedini izvor istine — šta god obrišeš, dodaš ili preimenuješ u **Admin panelu → Kategorije** ostaje trajno i nikad se ne vraća unazad, koliko god puta pokrenuo `update.sh`.
 
 ## Razvoj lokalno (na tvom računaru, ne na produkcionom serveru)
 
