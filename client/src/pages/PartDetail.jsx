@@ -48,7 +48,7 @@ export default function PartDetail() {
               <p><span className="text-ink/50">Šta je reparirano:</span> {part.repair_notes}</p>
             )}
             {part.price != null && (
-              <p className="text-xl font-semibold text-steel mt-2">{part.price} RSD</p>
+              <p className="text-xl font-semibold text-steel mt-2">{part.price} {part.currency || "RSD"}</p>
             )}
           </div>
 
