@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "../api";
 
 const emptyForm = {
-  name: "", category_id: "", oem_number: "", brand_code: "", brand: "",
+  internal_code: "", name: "", category_id: "", oem_number: "", brand_code: "", brand: "",
   status: "polovno", repair_notes: "", description: "", price: "",
   quantity: 1, availability_status: "aktivno", vehicle_ids: [],
 };
@@ -25,11 +25,19 @@ export default function AdminParts() {
     loadParts();
     api.get("/categories").then(setCategories);
     api.get("/vehicles").then(setVehicles);
+    loadSuggestedCode();
   }, []);
+
+  function loadSuggestedCode() {
+    api.get("/parts/next-code").then((data) => {
+      setForm((f) => ({ ...f, internal_code: data.code }));
+    });
+  }
 
   function startEdit(part) {
     setEditingId(part.id);
     setForm({
+      internal_code: part.internal_code || "",
       name: part.name || "",
       category_id: part.category_id || "",
       oem_number: part.oem_number || "",
@@ -75,6 +83,7 @@ export default function AdminParts() {
       }
       resetForm();
       loadParts();
+      loadSuggestedCode();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -108,6 +117,14 @@ export default function AdminParts() {
             <label className="block text-xs font-medium text-ink/60 mb-1">Naziv *</label>
             <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="w-full border border-line rounded px-3 py-2" />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-ink/60 mb-1">
+              Interni broj dela {!editingId && <span className="text-ink/40">(predložen, možeš promeniti)</span>}
+            </label>
+            <input value={form.internal_code} onChange={(e) => setForm({ ...form, internal_code: e.target.value })}
+              className="w-full border border-line rounded px-3 py-2 font-mono" placeholder="npr. K0001" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
