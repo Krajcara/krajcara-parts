@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useSettings } from "../context/SettingsContext";
 
 export default function Contact() {
@@ -55,6 +56,19 @@ export default function Contact() {
           </div>
         </div>
       )}
+
+      <div className="mt-6 bg-rust/10 border border-rust/30 rounded-lg p-4">
+        <p className="text-sm text-ink/80">
+          <span className="font-medium">Savet:</span> radi lakšeg i bržeg naručivanja, najbolje je
+          da nam izdiktirate <span className="font-medium">interni broj dela</span> (npr.{" "}
+          <span className="font-mono">K0001</span>) — nalazi se na stranici svakog dela, odmah
+          ispod naziva.
+        </p>
+      </div>
+
+      <p className="mt-8 text-sm">
+        <Link to="/" className="text-steel hover:underline">&larr; Nazad na pretragu delova</Link>
+      </p>
     </div>
   );
 }
