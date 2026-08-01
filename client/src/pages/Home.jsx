@@ -58,6 +58,15 @@ export default function Home() {
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
+      <div className="mb-8">
+        <h1 className="font-display text-2xl md:text-3xl font-semibold">
+          Polovni auto delovi Kikinda
+        </h1>
+        <p className="text-ink/60 mt-1">
+          Autoelektričar sa dugogodišnjim iskustvom — polovni, reparirani i novi delovi za vaše vozilo.
+        </p>
+      </div>
+
       {/* Pretraga */}
       <div className="bg-white border border-line rounded-lg p-6 mb-10">
         <h2 className="font-display text-xl font-semibold mb-4">Pronađite deo</h2>
