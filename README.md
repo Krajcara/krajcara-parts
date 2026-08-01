@@ -25,7 +25,7 @@ krajcara-parts/
 
 Preduslov: Ubuntu server sa `git`, `curl`, `sudo` pravima, i već podešen Nginx Proxy Manager + Cloudflare DNS/DDNS za `krajcara.com`.
 
-Repozitorijum je **javan**, pa nije potreban nikakav token za kloniranje ili ažuriranje.
+Repozitorijum je **javan**, pa nije potreban nikakav token za kloniranje ili ažuriranje. Prvo se repo klonira ručno, pa se iz njega pokreće instalacija:
 
 ```bash
 git clone https://github.com/krajcara/krajcara-parts.git
@@ -35,14 +35,18 @@ bash install.sh
 
 > Važno: pokreni `bash install.sh` **bez** `sudo` ispred. Skripta sama interno poziva `sudo` samo tamo gde je stvarno potrebno (instalacija Node.js-a i PM2-a). Ako pokreneš ceo `install.sh` sa `sudo`, folder projekta (uključujući `.git`) ostaje u vlasništvu `root` korisnika, što kasnije pravi probleme sa `git pull` i dozvolama.
 
-Skripta će:
+Skripta ništa ne pita — potpuno je automatska. Ona će:
 1. Instalirati Node.js (ako nedostaje) i PM2
-2. Pitati za URL repozitorijuma samo prvi put (npr. `https://github.com/krajcara/krajcara-parts.git`) i zapamtiti ga u `~/.krajcara/repo_url`
+2. Prepoznati repo automatski (iz `git remote` postojećeg klona)
 3. Instalirati sve zavisnosti (backend + frontend)
-4. Kreirati `server/.env` iz `.env.example` — **obavezno izmeni `JWT_SECRET`, `ADMIN_USERNAME` i `ADMIN_PASSWORD`** pre nego što nastaviš
+4. Kreirati `server/.env` iz `.env.example` i automatski generisati siguran `JWT_SECRET` i nasumičnu `ADMIN_PASSWORD` (korisničko ime ostaje `admin`)
 5. Inicijalizovati SQLite bazu i kreirati admin nalog
 6. Napraviti produkcioni build frontenda
 7. Pokrenuti aplikaciju kroz PM2 (automatski restart pri padu i pri reboot-u servera)
+
+Na kraju instalacije, generisano admin korisničko ime i lozinka se ispisuju na ekranu i čuvaju u `~/.krajcara/admin_credentials.txt` — **zapiši/sačuvaj taj fajl**, jer se lozinka posle toga nigde više ne prikazuje u čitljivom obliku.
+
+> Automatsko generisanje se dešava samo pri **prvoj** instalaciji (kad `server/.env` još ne postoji). Ako fajl već postoji, skripta ga ne dira — tvoje već podešene vrednosti ostaju netaknute. Ako želiš drugo korisničko ime umesto `admin`, izmeni `ADMIN_USERNAME` ručno u `server/.env` i pokreni `npm run seed-admin` iz `server/` foldera.
 
 ## Ažuriranje aplikacije (nakon izmena u kodu)
 
