@@ -88,7 +88,7 @@ router.post("/", requireAuth, upload.single("image"), async (req, res) => {
   try {
     const {
       internal_code, name, category_id, oem_number, brand_code, brand,
-      status, repair_notes, description, price,
+      status, repair_notes, description, price, currency,
       quantity, availability_status, extra_attributes, vehicle_ids,
     } = req.body;
 
@@ -117,14 +117,14 @@ router.post("/", requireAuth, upload.single("image"), async (req, res) => {
       .prepare(
         `INSERT INTO parts
          (internal_code, name, category_id, oem_number, brand_code, brand, status,
-          repair_notes, description, price, image_path, quantity, availability_status, extra_attributes)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          repair_notes, description, price, currency, image_path, quantity, availability_status, extra_attributes)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .run(
         finalCode, name, category_id || null, oem_number || null,
         brand_code || null, brand || null, status,
         repair_notes || null, description || null, price || null,
-        imagePath, quantity || 1, availability_status || "aktivno",
+        currency || "RSD", imagePath, quantity || 1, availability_status || "aktivno",
         extra_attributes || "{}"
       );
 
@@ -155,7 +155,7 @@ router.put("/:id", requireAuth, upload.single("image"), async (req, res) => {
 
     const {
       internal_code, name, category_id, oem_number, brand_code, brand,
-      status, repair_notes, description, price,
+      status, repair_notes, description, price, currency,
       quantity, availability_status, extra_attributes, vehicle_ids,
     } = req.body;
 
@@ -179,13 +179,13 @@ router.put("/:id", requireAuth, upload.single("image"), async (req, res) => {
     db.prepare(
       `UPDATE parts SET
         internal_code=?, name=?, category_id=?, oem_number=?, brand_code=?, brand=?, status=?,
-        repair_notes=?, description=?, price=?, image_path=?, quantity=?,
+        repair_notes=?, description=?, price=?, currency=?, image_path=?, quantity=?,
         availability_status=?, extra_attributes=?, updated_at=datetime('now')
        WHERE id=?`
     ).run(
       finalCode, name, category_id || null, oem_number || null, brand_code || null,
       brand || null, status, repair_notes || null, description || null,
-      price || null, imagePath, quantity || 1, availability_status || "aktivno",
+      price || null, currency || "RSD", imagePath, quantity || 1, availability_status || "aktivno",
       extra_attributes || "{}", req.params.id
     );
 
