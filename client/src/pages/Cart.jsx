@@ -102,6 +102,23 @@ export default function Cart() {
             </div>
           </div>
 
+          <div className="mt-6 bg-white border border-line rounded-lg p-5 print:hidden">
+            <h2 className="font-medium mb-2">Način preuzimanja</h2>
+            <ul className="text-sm text-ink/70 space-y-1.5 list-disc list-inside">
+              <li>Delovi se šalju <span className="font-medium text-ink">pouzećem</span> — plaćate kuriru prilikom preuzimanja pošiljke.</li>
+              <li>Takođe možete <span className="font-medium text-ink">lično preuzeti</span> deo, dogovorom telefonom ili mejlom.</li>
+            </ul>
+          </div>
+
+          <div className="mt-6 bg-rust/10 border border-rust/30 rounded-lg p-4 print:hidden">
+            <p className="text-sm text-ink/80">
+              <span className="font-medium">Savet:</span> radi lakšeg i bržeg naručivanja, najbolje je
+              da nam izdiktirate <span className="font-medium">interni broj dela</span> (npr.{" "}
+              <span className="font-mono">K0001</span>) — nalazi se na stranici svakog dela, odmah
+              ispod naziva.
+            </p>
+          </div>
+
           {/* Prikaz samo za štampu/PDF - čist spisak bez dugmića */}
           <div className="hidden print:block">
             <h2 className="font-display text-xl font-semibold mb-1">KRAJCARA — Spisak delova za upit</h2>
