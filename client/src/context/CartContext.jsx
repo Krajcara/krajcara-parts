@@ -31,6 +31,7 @@ export function CartProvider({ children }) {
           price: part.price,
           currency: part.currency,
           image_path: part.image_path,
+          vehicles: (part.vehicles || []).map((v) => ({ make: v.make, model: v.model })),
         },
       ];
     });
