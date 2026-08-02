@@ -1,11 +1,13 @@
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { getToken } from "./api";
 import { SettingsProvider, useSettings } from "./context/SettingsContext";
+import { CartProvider } from "./context/CartContext";
 import Header from "./components/Header";
 import UnderConstructionBanner from "./components/UnderConstructionBanner";
 import Home from "./pages/Home";
 import PartDetail from "./pages/PartDetail";
 import Contact from "./pages/Contact";
+import Cart from "./pages/Cart";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 
@@ -31,6 +33,7 @@ function AppShell() {
           <Route path="/" element={<Home />} />
           <Route path="/delovi/:id" element={<PartDetail />} />
           <Route path="/kontakt" element={<Contact />} />
+          <Route path="/korpa" element={<Cart />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route
             path="/admin"
@@ -55,7 +58,9 @@ function AppShell() {
 export default function App() {
   return (
     <SettingsProvider>
-      <AppShell />
+      <CartProvider>
+        <AppShell />
+      </CartProvider>
     </SettingsProvider>
   );
 }
