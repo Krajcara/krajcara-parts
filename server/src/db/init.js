@@ -46,7 +46,7 @@ function initDb() {
   insertSetting.run("site_under_construction", "true");
   insertSetting.run("banner_text", "KRAJCARA");
   insertSetting.run("contact_phone", "");
-  insertSetting.run("contact_email", "");
+  insertSetting.run("contact_phone2", "");
 
   console.log("Baza je uspešno inicijalizovana:", require("../config").dbPath);
 }
