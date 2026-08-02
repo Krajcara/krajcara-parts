@@ -4,7 +4,7 @@ import { api } from "../api";
 export default function AdminSettings() {
   const [settings, setSettings] = useState({});
   const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
+  const [phone2, setPhone2] = useState("");
   const [saved, setSaved] = useState(false);
   const [savedContact, setSavedContact] = useState(false);
 
@@ -12,7 +12,7 @@ export default function AdminSettings() {
     api.get("/settings").then((data) => {
       setSettings(data);
       setPhone(data.contact_phone || "");
-      setEmail(data.contact_email || "");
+      setPhone2(data.contact_phone2 || "");
     });
   }, []);
 
@@ -26,8 +26,8 @@ export default function AdminSettings() {
 
   async function handleSaveContact(e) {
     e.preventDefault();
-    await api.put("/settings", { contact_phone: phone, contact_email: email });
-    setSettings({ ...settings, contact_phone: phone, contact_email: email });
+    await api.put("/settings", { contact_phone: phone, contact_phone2: phone2 });
+    setSettings({ ...settings, contact_phone: phone, contact_phone2: phone2 });
     setSavedContact(true);
     setTimeout(() => setSavedContact(false), 2000);
   }
@@ -60,7 +60,8 @@ export default function AdminSettings() {
       <div>
         <h2 className="font-display text-xl font-semibold mb-4">Kontakt podaci</h2>
         <p className="text-sm text-ink/60 mb-4">
-          Prikazuju se na javnoj Kontakt stranici (dugme "Pozovite nas" na sajtu vodi tamo).
+          Prikazuju se na javnoj Kontakt stranici i u Korpi. Drugi telefon je opcion — ako ga ostaviš
+          praznim, na sajtu se prikazuje samo prvi.
         </p>
         <form onSubmit={handleSaveContact} className="bg-white border border-line rounded-lg p-5 space-y-3">
           <div>
@@ -74,12 +75,12 @@ export default function AdminSettings() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-ink/60 mb-1">E-mail</label>
+            <label className="block text-xs font-medium text-ink/60 mb-1">Telefon 2 (opciono)</label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="npr. info@krajcara.com"
+              type="text"
+              value={phone2}
+              onChange={(e) => setPhone2(e.target.value)}
+              placeholder="npr. 063 000 0000"
               className="w-full border border-line rounded px-3 py-2"
             />
           </div>
