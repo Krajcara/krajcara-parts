@@ -25,8 +25,10 @@ function AppShell() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {settings.site_under_construction === "true" && !isAdminRoute && <UnderConstructionBanner />}
-      {!isAdminRoute && <Header />}
+      <div className="print:hidden">
+        {settings.site_under_construction === "true" && !isAdminRoute && <UnderConstructionBanner />}
+        {!isAdminRoute && <Header />}
+      </div>
 
       <main className="flex-1">
         <Routes>
@@ -47,7 +49,7 @@ function AppShell() {
       </main>
 
       {!isAdminRoute && (
-        <footer className="bg-graphite text-white/60 text-sm text-center py-6 mt-10">
+        <footer className="bg-graphite text-white/60 text-sm text-center py-6 mt-10 print:hidden">
           © {new Date().getFullYear()} Krajcara — Kikinda
         </footer>
       )}
