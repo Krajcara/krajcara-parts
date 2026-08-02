@@ -81,6 +81,29 @@ Svaki deo dobija predlog internog broja u formatu `K0001` (nastavlja se od najvi
 
 Podrazumevane kategorije (Motor, Menjač, Elektrika...) ubacuju se **samo pri prvoj instalaciji**, kad je tabela kategorija prazna. Nakon toga, Admin panel je jedini izvor istine — šta god obrišeš, dodaš ili preimenuješ u **Admin panelu → Kategorije** ostaje trajno i nikad se ne vraća unazad, koliko god puta pokrenuo `update.sh`.
 
+## Resetovanje delova i vozila (npr. posle testiranja)
+
+Da obrišeš sve unete delove i vozila, a da kategorije i admin nalog ostanu netaknuti:
+
+```bash
+cd ~/krajcara-parts/server
+pm2 stop krajcara-server
+
+node -e "
+const db = require('./src/db/connection');
+db.exec(\`
+  DELETE FROM part_vehicle_compatibility;
+  DELETE FROM parts;
+  DELETE FROM vehicles;
+\`);
+console.log('Delovi i vozila obrisani. Kategorije i admin nalog netaknuti.');
+"
+
+pm2 start krajcara-server
+```
+
+Pošto se predlog internog broja dela računa na osnovu poslednjeg unetog broja, posle ovoga prvi novi deo ponovo dobija predlog `K0001`.
+
 ## Razvoj lokalno (na tvom računaru, ne na produkcionom serveru)
 
 ```bash
