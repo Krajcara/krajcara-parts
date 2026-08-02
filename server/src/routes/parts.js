@@ -34,16 +34,31 @@ function attachVehicles(part) {
 // -------- Javna pretraga --------
 // Podržava: q (OEM ili interni broj ili naziv), category_id, status, vehicle_id
 router.get("/", (req, res) => {
-  const { q, category_id, status, vehicle_id } = req.query;
+  const { q, category_id, status, vehicle_id, make, model } = req.query;
 
   let query = `SELECT DISTINCT p.* FROM parts p`;
   const params = [];
   const conditions = ["p.availability_status = 'aktivno'"];
 
-  if (vehicle_id) {
-    query += ` JOIN part_vehicle_compatibility pvc ON pvc.part_id = p.id`;
-    conditions.push("pvc.vehicle_id = ?");
-    params.push(vehicle_id);
+  if (vehicle_id || make || model) {
+    query += ` JOIN part_vehicle_compatibility pvc ON pvc.part_id = p.id
+               JOIN vehicles v ON v.id = pvc.vehicle_id`;
+
+    if (vehicle_id) {
+      // Tačno izabrana generacija/motor - najprecizniji filter
+      conditions.push("v.id = ?");
+      params.push(vehicle_id);
+    } else {
+      // Filtriraj po marki i/ili modelu i pre nego što je tačno vozilo izabrano
+      if (make) {
+        conditions.push("v.make = ?");
+        params.push(make);
+      }
+      if (model) {
+        conditions.push("v.model = ?");
+        params.push(model);
+      }
+    }
   }
 
   if (q) {
