@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { partSlug } from "../utils/slugify";
 
 const statusLabels = {
   novo: "Novo",
@@ -15,7 +16,7 @@ const statusStyles = {
 export default function PartCard({ part }) {
   return (
     <Link
-      to={`/delovi/${part.id}`}
+      to={`/delovi/${partSlug(part)}`}
       className="group bg-white border border-line rounded-lg overflow-hidden hover:shadow-md transition-shadow flex flex-col"
     >
       <div className="aspect-[4/3] bg-canvas overflow-hidden">
