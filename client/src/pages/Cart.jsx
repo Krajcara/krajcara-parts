@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useSettings } from "../context/SettingsContext";
+import { partSlug } from "../utils/slugify";
 
 export default function Cart() {
   const { items, removeFromCart } = useCart();
@@ -36,7 +37,7 @@ export default function Cart() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <Link to={`/delovi/${part.id}`} className="font-medium hover:text-steel truncate block">
+                  <Link to={`/delovi/${partSlug(part)}`} className="font-medium hover:text-steel truncate block">
                     {part.name}
                   </Link>
                   <p className="text-xs text-ink/50">Šifra: {part.internal_code}</p>
