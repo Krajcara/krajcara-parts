@@ -104,6 +104,43 @@ pm2 start krajcara-server
 
 Pošto se predlog internog broja dela računa na osnovu poslednjeg unetog broja, posle ovoga prvi novi deo ponovo dobija predlog `K0001`.
 
+## Ako sajt ne radi (npr. posle nestanka struje ili restarta servera)
+
+**1. Proveri da li je aplikacija aktivna:**
+```bash
+pm2 status
+```
+Traži red `krajcara-server` — status treba da piše **online**. Ako se aplikacija uopšte ne pojavljuje na listi, PM2 se nije sam pokrenuo.
+
+**2. Ako se ne pojavljuje, pokreni ručno:**
+```bash
+cd ~/krajcara-parts/server
+pm2 start src/index.js --name krajcara-server
+pm2 save
+```
+
+**3. Proveri da li odgovara lokalno:**
+```bash
+curl http://localhost:4000/api/health
+```
+Treba da vrati `{"status":"ok",...}`.
+
+**4. Trajno rešenje — da se PM2 sam pokrene posle svakog restarta/nestanka struje:**
+```bash
+pm2 startup
+```
+Ova komanda ispiše jednu `sudo` komandu prilagođenu tvom sistemu (sadrži putanje specifične za tvoj server) — kopiraj **tačno tu komandu koju tebi ispiše** i pokreni je. Ona registruje PM2 kao systemd servis. Nakon toga:
+```bash
+pm2 save
+```
+
+Ovo se radi **samo jednom** — nakon što je urađeno, aplikacija se sama diže pri svakom budućem restartu servera, bez ikakve intervencije. Provereno testom (`sudo reboot`) da radi ispravno.
+
+**5. Ako ništa od ovoga ne pomaže, pogledaj logove:**
+```bash
+pm2 logs krajcara-server --lines 50
+```
+
 ## Razvoj lokalno (na tvom računaru, ne na produkcionom serveru)
 
 ```bash
