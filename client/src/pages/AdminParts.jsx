@@ -16,6 +16,7 @@ export default function AdminParts() {
   const [imageFile, setImageFile] = useState(null);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [searchCode, setSearchCode] = useState("");
 
   function loadParts() {
     api.get("/parts/admin").then(setParts).catch((e) => setError(e.message));
@@ -246,8 +247,21 @@ export default function AdminParts() {
 
       <div>
         <h2 className="font-display text-xl font-semibold mb-4">Svi delovi ({parts.length})</h2>
+        <input
+          type="text"
+          value={searchCode}
+          onChange={(e) => setSearchCode(e.target.value)}
+          placeholder="Pretraga po internom broju dela (npr. K0001)"
+          className="w-full border border-line rounded px-3 py-2 mb-3 font-mono"
+        />
         <div className="space-y-2 max-h-[800px] overflow-y-auto pr-1">
-          {parts.map((p) => (
+          {parts
+            .filter((p) =>
+              searchCode.trim()
+                ? p.internal_code.toLowerCase().includes(searchCode.trim().toLowerCase())
+                : true
+            )
+            .map((p) => (
             <div key={p.id} className="bg-white border border-line rounded-lg p-3 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="font-medium truncate">{p.name}</p>
