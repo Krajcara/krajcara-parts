@@ -5,23 +5,13 @@ import { useSettings } from "../context/SettingsContext";
 export default function Cart() {
   const { items, removeFromCart } = useCart();
   const { settings } = useSettings();
-  const phone = settings.contact_phone;
-  const email = settings.contact_email;
-
-  const mailBody = items
-    .map((p) => `- ${p.name} (šifra: ${p.internal_code})`)
-    .join("\n");
-  const mailtoLink = email
-    ? `mailto:${email}?subject=${encodeURIComponent("Upit za delove - Krajcara.com")}&body=${encodeURIComponent(
-        `Zdravo,\n\nZanimaju me sledeći delovi:\n\n${mailBody}\n\nHvala!`
-      )}`
-    : null;
+  const phones = [settings.contact_phone, settings.contact_phone2].filter(Boolean);
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
       <h1 className="font-display text-3xl font-semibold mb-2">Korpa</h1>
       <p className="text-ink/60 mb-8">
-        Ovo nije online porudžbina — samo spisak delova koje želite da pitate telefonom ili mejlom.
+        Ovo nije online porudžbina — samo spisak delova koje želite da pitate telefonom.
       </p>
 
       {items.length === 0 ? (
@@ -65,26 +55,19 @@ export default function Cart() {
           </div>
 
           <div className="bg-white border border-line rounded-lg p-5 print:hidden">
-            <h2 className="font-medium mb-4">Pošaljite upit za ove delove</h2>
+            <h2 className="font-medium mb-4">Pozovite nas za ove delove</h2>
             <div className="flex flex-col sm:flex-row gap-3">
-              {mailtoLink ? (
-                <a
-                  href={mailtoLink}
-                  className="flex-1 text-center bg-graphite hover:bg-graphite/90 transition-colors text-white font-medium px-5 py-3 rounded"
-                >
-                  Pošalji upit mejlom
-                </a>
-              ) : (
-                <p className="flex-1 text-sm text-ink/40 italic self-center">E-mail još nije podešen.</p>
-              )}
-              {phone ? (
-                <a
-                  href={`tel:${phone.replace(/\s+/g, "")}`}
-                  className="flex-1 text-center bg-rust hover:bg-rust/90 transition-colors text-white font-medium px-5 py-3 rounded leading-tight"
-                >
-                  <span className="block">Pozovite nas</span>
-                  <span className="block text-sm font-normal opacity-90">{phone}</span>
-                </a>
+              {phones.length > 0 ? (
+                phones.map((phone, i) => (
+                  <a
+                    key={i}
+                    href={`tel:${phone.replace(/\s+/g, "")}`}
+                    className="flex-1 text-center bg-rust hover:bg-rust/90 transition-colors text-white font-medium px-5 py-3 rounded leading-tight"
+                  >
+                    <span className="block">{phones.length > 1 ? `Pozovite nas ${i + 1}` : "Pozovite nas"}</span>
+                    <span className="block text-sm font-normal opacity-90">{phone}</span>
+                  </a>
+                ))
               ) : (
                 <Link
                   to="/kontakt"
@@ -102,11 +85,17 @@ export default function Cart() {
             </div>
           </div>
 
+          <div className="mt-6 bg-rust/10 border border-rust/30 rounded-lg p-4 print:hidden">
+            <p className="text-sm text-ink/80">
+              <span className="font-medium">Molimo vas pozovite nas</span> — na SMS i Viber poruke ne odgovaramo.
+            </p>
+          </div>
+
           <div className="mt-6 bg-white border border-line rounded-lg p-5 print:hidden">
             <h2 className="font-medium mb-2">Način preuzimanja</h2>
             <ul className="text-sm text-ink/70 space-y-1.5 list-disc list-inside">
               <li>Delovi se šalju <span className="font-medium text-ink">pouzećem</span> — plaćate kuriru prilikom preuzimanja pošiljke.</li>
-              <li>Takođe možete <span className="font-medium text-ink">lično preuzeti</span> deo, dogovorom telefonom ili mejlom.</li>
+              <li>Takođe možete <span className="font-medium text-ink">lično preuzeti</span> deo, dogovorom telefonom.</li>
             </ul>
           </div>
 
@@ -146,8 +135,9 @@ export default function Cart() {
               </tbody>
             </table>
             <div className="mt-6 text-sm">
-              {phone && <p>Telefon: {phone}</p>}
-              {email && <p>E-mail: {email}</p>}
+              {phones.map((phone, i) => (
+                <p key={i}>Telefon{phones.length > 1 ? ` ${i + 1}` : ""}: {phone}</p>
+              ))}
             </div>
           </div>
         </>
