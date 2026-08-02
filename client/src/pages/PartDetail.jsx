@@ -10,14 +10,14 @@ const statusLabels = {
 };
 
 export default function PartDetail() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [part, setPart] = useState(null);
   const [error, setError] = useState(null);
   const { isInCart, toggleCart } = useCart();
 
   useEffect(() => {
-    api.get(`/parts/${id}`).then(setPart).catch((e) => setError(e.message));
-  }, [id]);
+    api.get(`/parts/${slug}`).then(setPart).catch((e) => setError(e.message));
+  }, [slug]);
 
   if (error) return <p className="max-w-3xl mx-auto px-6 py-10 text-red-600">{error}</p>;
   if (!part) return <p className="max-w-3xl mx-auto px-6 py-10 text-ink/50">Učitavanje...</p>;
