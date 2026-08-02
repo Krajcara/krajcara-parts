@@ -92,8 +92,14 @@ router.get("/next-code", requireAuth, (req, res) => {
 });
 
 // Javno - detalji jednog dela
-router.get("/:id", (req, res) => {
-  const part = db.prepare("SELECT * FROM parts WHERE id = ?").get(req.params.id);
+// Javno - detalji jednog dela. Prihvata i čist broj (staro ponašanje) i SEO slug
+// u formatu "{id}-{opisni-tekst}" (npr. "12-alternator-bosch-90a-vw-golf-5") -
+// ID je uvek prvi segment, ostatak je samo za čitljivost i ne utiče na pretragu.
+router.get("/:slug", (req, res) => {
+  const match = req.params.slug.match(/^(\d+)/);
+  if (!match) return res.status(404).json({ error: "Deo nije pronađen." });
+
+  const part = db.prepare("SELECT * FROM parts WHERE id = ?").get(match[1]);
   if (!part) return res.status(404).json({ error: "Deo nije pronađen." });
   res.json(attachVehicles(part));
 });
