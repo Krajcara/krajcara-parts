@@ -56,6 +56,17 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, [query, categoryId, status, vehicleId]);
 
+  function resetSearch() {
+    setQuery("");
+    setCategoryId("");
+    setStatus("");
+    setMake("");
+    setModel("");
+    setVehicleId("");
+  }
+
+  const hasActiveFilters = query || categoryId || status || make || model || vehicleId;
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
       <div className="mb-8">
@@ -69,7 +80,17 @@ export default function Home() {
 
       {/* Pretraga */}
       <div className="bg-white border border-line rounded-lg p-6 mb-10">
-        <h2 className="font-display text-xl font-semibold mb-4">Pronađite deo</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-display text-xl font-semibold">Pronađite deo</h2>
+          {hasActiveFilters && (
+            <button
+              onClick={resetSearch}
+              className="text-sm text-steel hover:underline"
+            >
+              Resetuj pretragu
+            </button>
+          )}
+        </div>
 
         <div className="grid md:grid-cols-3 gap-4 mb-4">
           <div>
