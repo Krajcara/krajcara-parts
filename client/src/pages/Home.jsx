@@ -48,13 +48,18 @@ export default function Home() {
     if (query) params.set("q", query);
     if (categoryId) params.set("category_id", categoryId);
     if (status) params.set("status", status);
-    if (vehicleId) params.set("vehicle_id", vehicleId);
+    if (vehicleId) {
+      params.set("vehicle_id", vehicleId);
+    } else {
+      if (make) params.set("make", make);
+      if (model) params.set("model", model);
+    }
 
     api
       .get(`/parts?${params.toString()}`)
       .then(setParts)
       .finally(() => setLoading(false));
-  }, [query, categoryId, status, vehicleId]);
+  }, [query, categoryId, status, vehicleId, make, model]);
 
   function resetSearch() {
     setQuery("");
