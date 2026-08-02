@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { api } from "../api";
-import { useSettings } from "../context/SettingsContext";
+import { useCart } from "../context/CartContext";
 
 const statusLabels = {
   novo: "Novo",
@@ -13,8 +13,7 @@ export default function PartDetail() {
   const { id } = useParams();
   const [part, setPart] = useState(null);
   const [error, setError] = useState(null);
-  const { settings } = useSettings();
-  const phone = settings.contact_phone;
+  const { isInCart, toggleCart } = useCart();
 
   useEffect(() => {
     api.get(`/parts/${id}`).then(setPart).catch((e) => setError(e.message));
@@ -69,21 +68,16 @@ export default function PartDetail() {
             </div>
           )}
 
-          {phone ? (
-            <a
-              href={`tel:${phone.replace(/\s+/g, "")}`}
-              className="mt-8 inline-flex items-center justify-center gap-2 bg-rust hover:bg-rust/90 transition-colors text-white font-medium px-6 py-3 rounded w-full md:w-auto"
-            >
-              Pozovite za poručivanje
-            </a>
-          ) : (
-            <Link
-              to="/kontakt"
-              className="mt-8 inline-flex items-center justify-center gap-2 bg-rust hover:bg-rust/90 transition-colors text-white font-medium px-6 py-3 rounded w-full md:w-auto"
-            >
-              Kontaktirajte nas za poručivanje
-            </Link>
-          )}
+          <button
+            onClick={() => toggleCart(part)}
+            className={`mt-8 inline-flex items-center justify-center gap-2 transition-colors font-medium px-6 py-3 rounded w-full md:w-auto ${
+              isInCart(part.id)
+                ? "bg-white border border-line text-ink hover:bg-canvas"
+                : "bg-rust hover:bg-rust/90 text-white"
+            }`}
+          >
+            {isInCart(part.id) ? "Ukloni iz korpe" : "Dodaj u korpu"}
+          </button>
         </div>
       </div>
     </div>
