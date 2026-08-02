@@ -79,7 +79,7 @@ export default function Home() {
           Polovni auto delovi Kikinda
         </h1>
         <p className="text-ink/60 mt-1">
-          Autoelektričar sa dugogodišnjim iskustvom — polovni i reparirani delovi za vaše vozilo.
+          Autoelektričar sa dugogodišnjim iskustvom — reparirani delovi za vaše vozilo.
         </p>
       </div>
 
