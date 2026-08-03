@@ -4,12 +4,14 @@ import { clearToken } from "../api";
 import AdminParts from "./AdminParts";
 import AdminVehicles from "./AdminVehicles";
 import AdminCategories from "./AdminCategories";
+import AdminEarnings from "./AdminEarnings";
 import AdminSettings from "./AdminSettings";
 
 const tabs = [
   { key: "parts", label: "Delovi", Component: AdminParts },
   { key: "vehicles", label: "Vozila", Component: AdminVehicles },
   { key: "categories", label: "Kategorije", Component: AdminCategories },
+  { key: "earnings", label: "Zarada", Component: AdminEarnings },
   { key: "settings", label: "Podešavanja", Component: AdminSettings },
 ];
 
