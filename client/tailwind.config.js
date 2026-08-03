@@ -1,16 +1,20 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: "class",
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
     extend: {
       colors: {
-        // Industrijska / auto-servis paleta
-        graphite: "#1C1D21",   // tamna pozadina (header/footer)
-        steel: "#3A5A78",      // hladno plava - sekundarni akcenat
-        rust: "#C2571B",       // topla rđasto-narandžasta - CTA / poziv
-        canvas: "#F3F1EC",     // svetla pozadina stranice
-        ink: "#22252A",        // osnovni tekst
-        line: "#DAD6CC",       // linije/border na svetloj pozadini
+        // Industrijska / auto-servis paleta - vrednosti dolaze iz CSS promenljivih
+        // definisanih u index.css, tako da se automatski menjaju sa .dark klasom
+        // na <html> elementu, bez potrebe da se svaka komponenta pojedinačno menja.
+        graphite: "rgb(var(--color-graphite) / <alpha-value>)",
+        steel: "rgb(var(--color-steel) / <alpha-value>)",
+        rust: "rgb(var(--color-rust) / <alpha-value>)",
+        canvas: "rgb(var(--color-canvas) / <alpha-value>)",
+        surface: "rgb(var(--color-surface) / <alpha-value>)",
+        ink: "rgb(var(--color-ink) / <alpha-value>)",
+        line: "rgb(var(--color-line) / <alpha-value>)",
       },
       fontFamily: {
         display: ["'Oswald'", "sans-serif"],
