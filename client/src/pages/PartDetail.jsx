@@ -19,7 +19,7 @@ export default function PartDetail() {
     api.get(`/parts/${slug}`).then(setPart).catch((e) => setError(e.message));
   }, [slug]);
 
-  if (error) return <p className="max-w-3xl mx-auto px-6 py-10 text-red-600">{error}</p>;
+  if (error) return <p className="max-w-3xl mx-auto px-6 py-10 text-red-600 dark:text-red-400">{error}</p>;
   if (!part) return <p className="max-w-3xl mx-auto px-6 py-10 text-ink/50">Učitavanje...</p>;
 
   return (
@@ -27,7 +27,7 @@ export default function PartDetail() {
       <Link to="/" className="text-sm text-steel hover:underline">&larr; Nazad na pretragu</Link>
 
       <div className="grid md:grid-cols-2 gap-8 mt-6">
-        <div className="bg-white border border-line rounded-lg overflow-hidden aspect-[4/3]">
+        <div className="bg-surface border border-line rounded-lg overflow-hidden aspect-[4/3]">
           {part.image_path ? (
             <img src={part.image_path} alt={part.name} className="w-full h-full object-cover" />
           ) : (
@@ -72,7 +72,7 @@ export default function PartDetail() {
             onClick={() => toggleCart(part)}
             className={`mt-8 inline-flex items-center justify-center gap-2 transition-colors font-medium px-6 py-3 rounded w-full md:w-auto ${
               isInCart(part.id)
-                ? "bg-white border border-line text-ink hover:bg-canvas"
+                ? "bg-surface border border-line text-ink hover:bg-canvas"
                 : "bg-rust hover:bg-rust/90 text-white"
             }`}
           >
