@@ -92,6 +92,28 @@ router.get("/next-code", requireAuth, (req, res) => {
 });
 
 // Javno - detalji jednog dela
+// Admin - statistika zarade od prodatih delova, grupisano po valuti
+router.get("/stats/earnings", requireAuth, (req, res) => {
+  const sold = db
+    .prepare(
+      `SELECT p.*, c.name AS category_name
+       FROM parts p
+       LEFT JOIN categories c ON c.id = p.category_id
+       WHERE p.availability_status = 'prodato'
+       ORDER BY p.updated_at DESC`
+    )
+    .all();
+
+  const totals = { RSD: { count: 0, total: 0 }, EUR: { count: 0, total: 0 } };
+  for (const p of sold) {
+    const cur = p.currency === "EUR" ? "EUR" : "RSD";
+    totals[cur].count += 1;
+    totals[cur].total += p.price || 0;
+  }
+
+  res.json({ totals, items: sold });
+});
+
 // Javno - detalji jednog dela. Prihvata i čist broj (staro ponašanje) i SEO slug
 // u formatu "{id}-{opisni-tekst}" (npr. "12-alternator-bosch-90a-vw-golf-5") -
 // ID je uvek prvi segment, ostatak je samo za čitljivost i ne utiče na pretragu.
