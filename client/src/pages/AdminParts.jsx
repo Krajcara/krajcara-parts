@@ -114,7 +114,7 @@ export default function AdminParts() {
         <h2 className="font-display text-xl font-semibold mb-4">
           {editingId ? "Izmena dela" : "Dodavanje novog dela"}
         </h2>
-        <form onSubmit={handleSubmit} className="bg-white border border-line rounded-lg p-5 space-y-3">
+        <form onSubmit={handleSubmit} className="bg-surface border border-line rounded-lg p-5 space-y-3">
           <div>
             <label className="block text-xs font-medium text-ink/60 mb-1">Naziv *</label>
             <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -229,7 +229,7 @@ export default function AdminParts() {
             </div>
           </div>
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          {error && <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>}
 
           <div className="flex gap-3 pt-2">
             <button type="submit" disabled={saving}
@@ -262,14 +262,14 @@ export default function AdminParts() {
                 : true
             )
             .map((p) => (
-            <div key={p.id} className="bg-white border border-line rounded-lg p-3 flex items-center justify-between gap-3">
+            <div key={p.id} className="bg-surface border border-line rounded-lg p-3 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="font-medium truncate">{p.name}</p>
                 <p className="text-xs text-ink/50">{p.internal_code} · {p.status} · {p.availability_status}</p>
               </div>
               <div className="flex gap-2 shrink-0">
                 <button onClick={() => startEdit(p)} className="text-sm text-steel hover:underline">Izmeni</button>
-                <button onClick={() => handleDelete(p.id)} className="text-sm text-red-600 hover:underline">Obriši</button>
+                <button onClick={() => handleDelete(p.id)} className="text-sm text-red-600 dark:text-red-400 hover:underline">Obriši</button>
               </div>
             </div>
           ))}
