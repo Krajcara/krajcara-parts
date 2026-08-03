@@ -39,7 +39,7 @@ export default function AdminSettings() {
       <div>
         <h2 className="font-display text-xl font-semibold mb-4">Podešavanja sajta</h2>
 
-        <div className="bg-white border border-line rounded-lg p-5">
+        <div className="bg-surface border border-line rounded-lg p-5">
           <p className="font-medium mb-1">Traka "Sajt u izradi"</p>
           <p className="text-sm text-ink/60 mb-4">
             Kada je uključena, na vrhu javnog sajta se prikazuje napomena da je sajt u izradi.
@@ -53,7 +53,7 @@ export default function AdminSettings() {
           >
             {isUnderConstruction ? "Trenutno: UKLJUČENA — isključi" : "Trenutno: ISKLJUČENA — uključi"}
           </button>
-          {saved && <p className="text-sm text-emerald-700 mt-2">Sačuvano.</p>}
+          {saved && <p className="text-sm text-emerald-700 dark:text-emerald-400 mt-2">Sačuvano.</p>}
         </div>
       </div>
 
@@ -63,7 +63,7 @@ export default function AdminSettings() {
           Prikazuju se na javnoj Kontakt stranici i u Korpi. Drugi telefon je opcion — ako ga ostaviš
           praznim, na sajtu se prikazuje samo prvi.
         </p>
-        <form onSubmit={handleSaveContact} className="bg-white border border-line rounded-lg p-5 space-y-3">
+        <form onSubmit={handleSaveContact} className="bg-surface border border-line rounded-lg p-5 space-y-3">
           <div>
             <label className="block text-xs font-medium text-ink/60 mb-1">Telefon</label>
             <input
@@ -90,7 +90,7 @@ export default function AdminSettings() {
           >
             Sačuvaj kontakt podatke
           </button>
-          {savedContact && <p className="text-sm text-emerald-700">Sačuvano.</p>}
+          {savedContact && <p className="text-sm text-emerald-700 dark:text-emerald-400">Sačuvano.</p>}
         </form>
       </div>
     </div>
