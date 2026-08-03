@@ -17,7 +17,7 @@ export default function PartCard({ part }) {
   return (
     <Link
       to={`/delovi/${partSlug(part)}`}
-      className="group bg-white border border-line rounded-lg overflow-hidden hover:shadow-md transition-shadow flex flex-col"
+      className="group bg-surface border border-line rounded-lg overflow-hidden hover:shadow-md transition-shadow flex flex-col"
     >
       <div className="aspect-[4/3] bg-canvas overflow-hidden">
         {part.image_path ? (
