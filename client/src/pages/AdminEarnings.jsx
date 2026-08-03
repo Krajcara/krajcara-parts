@@ -21,14 +21,14 @@ export default function AdminEarnings() {
       <h2 className="font-display text-xl font-semibold mb-4">Zarada od prodatih delova</h2>
 
       <div className="grid sm:grid-cols-2 gap-4 mb-8">
-        <div className="bg-white border border-line rounded-lg p-5">
+        <div className="bg-surface border border-line rounded-lg p-5">
           <p className="text-xs text-ink/50 uppercase tracking-wide mb-1">Prodato u RSD</p>
           <p className="text-3xl font-display font-semibold text-steel">
             {totals.RSD.total.toLocaleString("sr-RS")} RSD
           </p>
           <p className="text-sm text-ink/60 mt-1">{totals.RSD.count} {totals.RSD.count === 1 ? "deo" : "dela"}</p>
         </div>
-        <div className="bg-white border border-line rounded-lg p-5">
+        <div className="bg-surface border border-line rounded-lg p-5">
           <p className="text-xs text-ink/50 uppercase tracking-wide mb-1">Prodato u EUR</p>
           <p className="text-3xl font-display font-semibold text-steel">
             {totals.EUR.total.toLocaleString("sr-RS")} EUR
@@ -42,7 +42,7 @@ export default function AdminEarnings() {
       {items.length === 0 ? (
         <p className="text-ink/50 text-sm">Još nema prodatih delova.</p>
       ) : (
-        <div className="bg-white border border-line rounded-lg divide-y divide-line max-h-[600px] overflow-y-auto">
+        <div className="bg-surface border border-line rounded-lg divide-y divide-line max-h-[600px] overflow-y-auto">
           {items.map((p) => (
             <div key={p.id} className="p-4 flex items-center justify-between gap-4">
               <div className="min-w-0">
