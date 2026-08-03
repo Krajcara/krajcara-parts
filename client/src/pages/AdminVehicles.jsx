@@ -36,7 +36,7 @@ export default function AdminVehicles() {
     <div className="grid lg:grid-cols-2 gap-8">
       <div>
         <h2 className="font-display text-xl font-semibold mb-4">Dodaj vozilo</h2>
-        <form onSubmit={handleSubmit} className="bg-white border border-line rounded-lg p-5 space-y-3">
+        <form onSubmit={handleSubmit} className="bg-surface border border-line rounded-lg p-5 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <input required placeholder="Marka *" value={form.make}
               onChange={(e) => setForm({ ...form, make: e.target.value })}
@@ -60,7 +60,7 @@ export default function AdminVehicles() {
             onChange={(e) => setForm({ ...form, engine: e.target.value })}
             className="w-full border border-line rounded px-3 py-2" />
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          {error && <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>}
 
           <button type="submit" className="bg-graphite hover:bg-graphite/90 text-white font-medium px-5 py-2.5 rounded">
             Dodaj vozilo
@@ -72,11 +72,11 @@ export default function AdminVehicles() {
         <h2 className="font-display text-xl font-semibold mb-4">Sva vozila ({vehicles.length})</h2>
         <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
           {vehicles.map((v) => (
-            <div key={v.id} className="bg-white border border-line rounded-lg p-3 flex items-center justify-between gap-3">
+            <div key={v.id} className="bg-surface border border-line rounded-lg p-3 flex items-center justify-between gap-3">
               <p className="text-sm">
                 {v.make} {v.model} {v.generation} {v.year_from ? `(${v.year_from}-${v.year_to || ""})` : ""} {v.engine}
               </p>
-              <button onClick={() => handleDelete(v.id)} className="text-sm text-red-600 hover:underline shrink-0">
+              <button onClick={() => handleDelete(v.id)} className="text-sm text-red-600 dark:text-red-400 hover:underline shrink-0">
                 Obriši
               </button>
             </div>
