@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { clearToken } from "../api";
+import ThemeToggle from "../components/ThemeToggle";
 import AdminParts from "./AdminParts";
 import AdminVehicles from "./AdminVehicles";
 import AdminCategories from "./AdminCategories";
@@ -29,9 +30,12 @@ export default function AdminDashboard() {
     <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-display text-2xl font-semibold">Admin panel</h1>
-        <button onClick={handleLogout} className="text-sm text-ink/60 hover:underline">
-          Odjavi se
-        </button>
+        <div className="flex items-center gap-3">
+          <ThemeToggle className="border border-line text-ink hover:bg-canvas" />
+          <button onClick={handleLogout} className="text-sm text-ink/60 hover:underline">
+            Odjavi se
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-1 border-b border-line mb-6">
