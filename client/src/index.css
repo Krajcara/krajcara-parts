@@ -2,8 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-graphite: 28 29 33;     /* #1C1D21 - zaglavlje/podnožje, ostaje tamno u oba režima */
+  --color-steel: 58 90 120;       /* #3A5A78 */
+  --color-rust: 194 87 27;        /* #C2571B */
+  --color-canvas: 243 241 236;    /* #F3F1EC - pozadina stranice */
+  --color-surface: 255 255 255;   /* #FFFFFF - pozadina kartica */
+  --color-ink: 34 37 42;          /* #22252A - osnovni tekst */
+  --color-line: 218 214 204;      /* #DAD6CC - linije/border */
+}
+
+.dark {
+  --color-graphite: 12 13 15;     /* malo tamnije od pozadine, da se zaglavlje razlikuje */
+  --color-steel: 122 168 209;     /* svetlija za bolji kontrast na tamnoj pozadini */
+  --color-rust: 224 130 74;       /* svetlija za bolji kontrast na tamnoj pozadini */
+  --color-canvas: 20 21 24;       /* tamna pozadina stranice */
+  --color-surface: 32 33 37;      /* tamna pozadina kartica, malo svetlija od canvas-a */
+  --color-ink: 230 228 222;       /* svetao tekst */
+  --color-line: 54 55 60;         /* tamne linije/border */
+}
+
 body {
-  @apply bg-canvas text-ink font-body;
+  @apply bg-canvas text-ink font-body transition-colors duration-200;
 }
 
 .font-display {
