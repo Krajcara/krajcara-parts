@@ -44,13 +44,13 @@ export default function AdminCategories() {
           Dodaj
         </button>
       </form>
-      {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
+      {error && <p className="text-red-600 dark:text-red-400 text-sm mb-3">{error}</p>}
 
       <div className="space-y-2">
         {categories.map((c) => (
-          <div key={c.id} className="bg-white border border-line rounded-lg p-3 flex items-center justify-between">
+          <div key={c.id} className="bg-surface border border-line rounded-lg p-3 flex items-center justify-between">
             <span>{c.name}</span>
-            <button onClick={() => handleDelete(c.id)} className="text-sm text-red-600 hover:underline">
+            <button onClick={() => handleDelete(c.id)} className="text-sm text-red-600 dark:text-red-400 hover:underline">
               Obriši
             </button>
           </div>
