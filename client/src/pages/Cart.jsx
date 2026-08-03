@@ -16,7 +16,7 @@ export default function Cart() {
       </p>
 
       {items.length === 0 ? (
-        <div className="bg-white border border-line rounded-lg p-8 text-center">
+        <div className="bg-surface border border-line rounded-lg p-8 text-center">
           <p className="text-ink/50 mb-4">Korpa je prazna.</p>
           <Link to="/" className="text-steel hover:underline text-sm">
             &larr; Nazad na pretragu delova
@@ -24,7 +24,7 @@ export default function Cart() {
         </div>
       ) : (
         <>
-          <div className="bg-white border border-line rounded-lg divide-y divide-line mb-6 print:hidden">
+          <div className="bg-surface border border-line rounded-lg divide-y divide-line mb-6 print:hidden">
             {items.map((part) => (
               <div key={part.id} className="p-4 flex items-center gap-4">
                 <div className="w-16 h-16 bg-canvas rounded overflow-hidden shrink-0">
@@ -47,7 +47,7 @@ export default function Cart() {
                 </div>
                 <button
                   onClick={() => removeFromCart(part.id)}
-                  className="text-sm text-red-600 hover:underline shrink-0 print:hidden"
+                  className="text-sm text-red-600 dark:text-red-400 hover:underline shrink-0 print:hidden"
                 >
                   Ukloni
                 </button>
@@ -55,7 +55,7 @@ export default function Cart() {
             ))}
           </div>
 
-          <div className="bg-white border border-line rounded-lg p-5 print:hidden">
+          <div className="bg-surface border border-line rounded-lg p-5 print:hidden">
             <h2 className="font-medium mb-4">Pozovite nas za ove delove</h2>
             <div className="flex flex-col sm:flex-row gap-3">
               {phones.length > 0 ? (
@@ -79,7 +79,7 @@ export default function Cart() {
               )}
               <button
                 onClick={() => window.print()}
-                className="flex-1 text-center bg-white border border-line hover:bg-canvas transition-colors text-ink font-medium px-5 py-3 rounded"
+                className="flex-1 text-center bg-surface border border-line hover:bg-canvas transition-colors text-ink font-medium px-5 py-3 rounded"
               >
                 Sačuvaj kao PDF
               </button>
@@ -92,7 +92,7 @@ export default function Cart() {
             </p>
           </div>
 
-          <div className="mt-6 bg-white border border-line rounded-lg p-5 print:hidden">
+          <div className="mt-6 bg-surface border border-line rounded-lg p-5 print:hidden">
             <h2 className="font-medium mb-2">Način preuzimanja</h2>
             <ul className="text-sm text-ink/70 space-y-1.5 list-disc list-inside">
               <li>Delovi se šalju <span className="font-medium text-ink">pouzećem</span> — plaćate kuriru prilikom preuzimanja pošiljke.</li>
