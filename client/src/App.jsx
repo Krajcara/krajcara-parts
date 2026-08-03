@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { getToken } from "./api";
 import { SettingsProvider, useSettings } from "./context/SettingsContext";
 import { CartProvider } from "./context/CartContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import Header from "./components/Header";
 import UnderConstructionBanner from "./components/UnderConstructionBanner";
 import Home from "./pages/Home";
@@ -61,7 +62,9 @@ export default function App() {
   return (
     <SettingsProvider>
       <CartProvider>
-        <AppShell />
+        <ThemeProvider>
+          <AppShell />
+        </ThemeProvider>
       </CartProvider>
     </SettingsProvider>
   );
