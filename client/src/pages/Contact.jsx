@@ -15,7 +15,7 @@ export default function Contact() {
       {!loaded ? (
         <p className="text-ink/50">Učitavanje...</p>
       ) : (
-        <div className="bg-white border border-line rounded-lg divide-y divide-line">
+        <div className="bg-surface border border-line rounded-lg divide-y divide-line">
           {phones.length === 0 ? (
             <div className="p-5">
               <p className="text-xs text-ink/50 uppercase tracking-wide mb-1">Telefon</p>
@@ -48,7 +48,7 @@ export default function Contact() {
         </p>
       </div>
 
-      <div className="mt-6 bg-white border border-line rounded-lg p-5">
+      <div className="mt-6 bg-surface border border-line rounded-lg p-5">
         <h2 className="font-medium mb-2">Način preuzimanja</h2>
         <ul className="text-sm text-ink/70 space-y-1.5 list-disc list-inside">
           <li>Delovi se šalju <span className="font-medium text-ink">pouzećem</span> — plaćate kuriru prilikom preuzimanja pošiljke.</li>
