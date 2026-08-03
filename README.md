@@ -2,6 +2,8 @@
 
 Web aplikacija za prodaju polovnih, reparovanih i novih auto delova. Bez online plaćanja — kupci naručuju telefonom, plaćanje pouzećem.
 
+> Aplikacija je napravljena zahvaljujući [Claude](https://claude.ai) (Anthropic) 🙂
+
 ## Struktura projekta
 
 ```
@@ -140,6 +142,16 @@ Ovo se radi **samo jednom** — nakon što je urađeno, aplikacija se sama diže
 ```bash
 pm2 logs krajcara-server --lines 50
 ```
+
+## Tab "Zarada" (Admin panel)
+
+Prikazuje ukupnu zaradu i broj prodatih delova, odvojeno po valuti (RSD/EUR), plus spisak pojedinačnih prodaja. Podaci se računaju u realnom vremenu iz delova sa statusom "Prodato" — nema posebne evidencije, tako da brisanje dela automatski uklanja i njegovu zaradu iz statistike.
+
+## Night mode (tamni režim)
+
+Prekidač (ikonica sunce/mesec) postoji i na javnom sajtu (u zaglavlju) i u Admin panelu (pored "Odjavi se" i na login stranici). Izbor se pamti odvojeno za svaku sekciju — možeš imati tamni režim u adminu a svetli na javnom sajtu, ili obrnuto.
+
+Tehnički: boje su definisane kao CSS promenljive u `client/src/index.css` (`:root` za svetli režim, `.dark` za tamni), a Tailwind ih čita kroz `tailwind.config.js`. Ako ikad budeš želeo da promeniš neku boju, menjaš je na jednom mestu za oba režima, ne kroz svaki fajl posebno.
 
 ## Razvoj lokalno (na tvom računaru, ne na produkcionom serveru)
 
