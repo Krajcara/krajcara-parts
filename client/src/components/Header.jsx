@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   const { items } = useCart();
@@ -13,6 +14,7 @@ export default function Header() {
           </span>
         </Link>
         <div className="flex items-center gap-3">
+          <ThemeToggle className="bg-white/10 hover:bg-white/20 text-white" />
           <Link
             to="/korpa"
             className="relative inline-flex items-center justify-center w-11 h-11 rounded bg-white/10 hover:bg-white/20 transition-colors text-white"
