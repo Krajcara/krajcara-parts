@@ -84,7 +84,7 @@ export default function Home() {
       </div>
 
       {/* Pretraga */}
-      <div className="bg-white border border-line rounded-lg p-6 mb-10">
+      <div className="bg-surface border border-line rounded-lg p-6 mb-10">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-display text-xl font-semibold">Pronađite deo</h2>
           {hasActiveFilters && (
