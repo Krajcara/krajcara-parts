@@ -43,6 +43,14 @@ export default function PartDetail() {
             <p><span className="text-ink/50">Status:</span> {statusLabels[part.status]}</p>
             {part.oem_number && <p><span className="text-ink/50">OEM broj:</span> {part.oem_number}</p>}
             {part.brand && <p><span className="text-ink/50">Proizvođač:</span> {part.brand}</p>}
+            {part.alt_manufacturers && part.alt_manufacturers.length > 0 && (
+              <p>
+                <span className="text-ink/50">Takođe dostupno od:</span>{" "}
+                {part.alt_manufacturers
+                  .map((m) => (m.code ? `${m.brand} (${m.code})` : m.brand))
+                  .join(", ")}
+              </p>
+            )}
             {part.status === "reparirano" && part.repair_notes && (
               <p><span className="text-ink/50">Šta je reparirano:</span> {part.repair_notes}</p>
             )}
