@@ -28,7 +28,12 @@ function attachVehicles(part) {
        WHERE pvc.part_id = ?`
     )
     .all(part.id);
-  return { ...part, vehicles, extra_attributes: JSON.parse(part.extra_attributes || "{}") };
+  return {
+    ...part,
+    vehicles,
+    extra_attributes: JSON.parse(part.extra_attributes || "{}"),
+    alt_manufacturers: JSON.parse(part.alt_manufacturers || "[]"),
+  };
 }
 
 // -------- Javna pretraga --------
@@ -132,7 +137,7 @@ router.post("/", requireAuth, upload.single("image"), async (req, res) => {
     const {
       internal_code, name, category_id, oem_number, brand_code, brand,
       status, repair_notes, description, price, currency,
-      quantity, availability_status, extra_attributes, vehicle_ids,
+      quantity, availability_status, extra_attributes, alt_manufacturers, vehicle_ids,
     } = req.body;
 
     if (!name || !status) {
@@ -160,15 +165,16 @@ router.post("/", requireAuth, upload.single("image"), async (req, res) => {
       .prepare(
         `INSERT INTO parts
          (internal_code, name, category_id, oem_number, brand_code, brand, status,
-          repair_notes, description, price, currency, image_path, quantity, availability_status, extra_attributes)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          repair_notes, description, price, currency, image_path, quantity, availability_status,
+          extra_attributes, alt_manufacturers)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .run(
         finalCode, name, category_id || null, oem_number || null,
         brand_code || null, brand || null, status,
         repair_notes || null, description || null, price || null,
         currency || "RSD", imagePath, quantity || 1, availability_status || "aktivno",
-        extra_attributes || "{}"
+        extra_attributes || "{}", alt_manufacturers || "[]"
       );
 
     const partId = result.lastInsertRowid;
@@ -199,7 +205,7 @@ router.put("/:id", requireAuth, upload.single("image"), async (req, res) => {
     const {
       internal_code, name, category_id, oem_number, brand_code, brand,
       status, repair_notes, description, price, currency,
-      quantity, availability_status, extra_attributes, vehicle_ids,
+      quantity, availability_status, extra_attributes, alt_manufacturers, vehicle_ids,
     } = req.body;
 
     let finalCode = existing.internal_code;
@@ -223,13 +229,13 @@ router.put("/:id", requireAuth, upload.single("image"), async (req, res) => {
       `UPDATE parts SET
         internal_code=?, name=?, category_id=?, oem_number=?, brand_code=?, brand=?, status=?,
         repair_notes=?, description=?, price=?, currency=?, image_path=?, quantity=?,
-        availability_status=?, extra_attributes=?, updated_at=datetime('now')
+        availability_status=?, extra_attributes=?, alt_manufacturers=?, updated_at=datetime('now')
        WHERE id=?`
     ).run(
       finalCode, name, category_id || null, oem_number || null, brand_code || null,
       brand || null, status, repair_notes || null, description || null,
       price || null, currency || "RSD", imagePath, quantity || 1, availability_status || "aktivno",
-      extra_attributes || "{}", req.params.id
+      extra_attributes || "{}", alt_manufacturers || "[]", req.params.id
     );
 
     if (vehicle_ids) {
