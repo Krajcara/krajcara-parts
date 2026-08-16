@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS parts (
   availability_status TEXT NOT NULL DEFAULT 'aktivno'
     CHECK (availability_status IN ('aktivno', 'rezervisano', 'prodato')),
   extra_attributes TEXT DEFAULT '{}',       -- JSON: napon, amperaza, testirano, garancija, lokacija...
+  alt_manufacturers TEXT DEFAULT '[]',      -- JSON niz [{brand, code}] - dodatni/alternativni proizvođači (opciono)
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
 );
