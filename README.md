@@ -182,6 +182,10 @@ Primer cron zadatka (svaki dan u 3h ujutru):
 0 3 * * * tar -czf /backup/krajcara-$(date +\%Y\%m\%d).tar.gz -C /putanja/do/krajcara-parts/server data uploads
 ```
 
+## Dodatni proizvođači po delu
+
+Isti fizički deo ponekad pravi više proizvođača (npr. Bosch, Denso, Marelli). Glavni proizvođač ostaje u poljima "Proizvođač/brend" i "Brend kod", a u formi za dodavanje/izmenu dela postoji opciona lista "Dodatni proizvođači" — slobodno dodaješ ili uklanjaš redove (naziv + oznaka), bez ograničenja broja. Na stranici dela za kupce, ovo se prikazuje kao "Takođe dostupno od: ...".
+
 ## Fleksibilnost polja dela
 
 Osnovna polja (naziv, OEM broj, status, cena...) su fiksne kolone u bazi. Dodatna polja specifična za kategoriju (npr. napon/amperaža za elektriku) idu u `extra_attributes` (JSON) — nova polja se mogu dodavati bez izmene šeme baze.
