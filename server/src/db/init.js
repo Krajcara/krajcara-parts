@@ -14,6 +14,13 @@ function initDb() {
     console.log("Migracija: dodata kolona 'currency' u tabelu parts.");
   }
 
+  // Migracija za baze kreirane pre dodatnih proizvođača
+  const hasAltManufacturers = partsColumns.some((col) => col.name === "alt_manufacturers");
+  if (!hasAltManufacturers) {
+    db.exec("ALTER TABLE parts ADD COLUMN alt_manufacturers TEXT DEFAULT '[]'");
+    console.log("Migracija: dodata kolona 'alt_manufacturers' u tabelu parts.");
+  }
+
   // Podrazumevane kategorije - ubacuju se SAMO pri prvoj instalaciji (kad je tabela prazna).
   // Nakon toga, admin panel je jedini izvor istine - obrisane kategorije se ne vraćaju
   // nazad prilikom update-a, niti se buduće izmene ovde automatski dodaju.
