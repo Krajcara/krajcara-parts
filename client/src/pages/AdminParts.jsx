@@ -4,7 +4,7 @@ import { api } from "../api";
 const emptyForm = {
   internal_code: "", name: "", category_id: "", oem_number: "", brand_code: "", brand: "",
   status: "polovno", repair_notes: "", description: "", price: "", currency: "RSD",
-  quantity: 1, availability_status: "aktivno", vehicle_ids: [],
+  quantity: 1, availability_status: "aktivno", vehicle_ids: [], alt_manufacturers: [],
 };
 
 export default function AdminParts() {
@@ -52,6 +52,9 @@ export default function AdminParts() {
       quantity: part.quantity ?? 1,
       availability_status: part.availability_status,
       vehicle_ids: part.vehicles?.map((v) => v.id) || [],
+      alt_manufacturers: part.alt_manufacturers && part.alt_manufacturers.length > 0
+        ? part.alt_manufacturers
+        : [],
     });
     setImageFile(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -72,6 +75,9 @@ export default function AdminParts() {
       Object.entries(form).forEach(([key, value]) => {
         if (key === "vehicle_ids") {
           fd.append(key, JSON.stringify(value));
+        } else if (key === "alt_manufacturers") {
+          const cleaned = value.filter((m) => m.brand.trim() || m.code.trim());
+          fd.append(key, JSON.stringify(cleaned));
         } else {
           fd.append(key, value);
         }
@@ -105,6 +111,29 @@ export default function AdminParts() {
       vehicle_ids: f.vehicle_ids.includes(vId)
         ? f.vehicle_ids.filter((id) => id !== vId)
         : [...f.vehicle_ids, vId],
+    }));
+  }
+
+  function addManufacturerRow() {
+    setForm((f) => ({
+      ...f,
+      alt_manufacturers: [...f.alt_manufacturers, { brand: "", code: "" }],
+    }));
+  }
+
+  function updateManufacturerRow(index, field, value) {
+    setForm((f) => ({
+      ...f,
+      alt_manufacturers: f.alt_manufacturers.map((m, i) =>
+        i === index ? { ...m, [field]: value } : m
+      ),
+    }));
+  }
+
+  function removeManufacturerRow(index) {
+    setForm((f) => ({
+      ...f,
+      alt_manufacturers: f.alt_manufacturers.filter((_, i) => i !== index),
     }));
   }
 
@@ -165,6 +194,48 @@ export default function AdminParts() {
             <label className="block text-xs font-medium text-ink/60 mb-1">Proizvođač / brend</label>
             <input value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })}
               className="w-full border border-line rounded px-3 py-2" />
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-medium text-ink/60">
+                Dodatni proizvođači <span className="text-ink/40">(opciono - isti deo pravi i neko drugi)</span>
+              </label>
+              <button
+                type="button"
+                onClick={addManufacturerRow}
+                className="text-xs text-steel hover:underline"
+              >
+                + Dodaj proizvođača
+              </button>
+            </div>
+            {form.alt_manufacturers.length > 0 && (
+              <div className="space-y-2">
+                {form.alt_manufacturers.map((m, i) => (
+                  <div key={i} className="flex gap-2">
+                    <input
+                      value={m.brand}
+                      onChange={(e) => updateManufacturerRow(i, "brand", e.target.value)}
+                      placeholder="Proizvođač (npr. Denso)"
+                      className="flex-1 border border-line rounded px-3 py-2 text-sm"
+                    />
+                    <input
+                      value={m.code}
+                      onChange={(e) => updateManufacturerRow(i, "code", e.target.value)}
+                      placeholder="Oznaka / kod"
+                      className="flex-1 border border-line rounded px-3 py-2 text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeManufacturerRow(i)}
+                      className="text-red-600 dark:text-red-400 text-sm px-2 shrink-0"
+                    >
+                      Ukloni
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {form.status === "reparirano" && (
